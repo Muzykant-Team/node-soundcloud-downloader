@@ -43,7 +43,6 @@
     "axios-mock-adapter": "^2.1.0",
     "babel-watch": "^7.8.1",
     "eslint": "^9.27.0",
-    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-node": "^11.1.0",
