@@ -68,6 +68,22 @@ var search = function (options, axiosInstance, clientID) { return __awaiter(void
                 return [4 /*yield*/, axiosInstance.get(url)];
             case 1:
                 data = (_a.sent()).data;
+                // DODANE: odfiltrowanie "sample" o długości ok. 30s oraz z ograniczeniami regionalnymi i niestreamowalne
+                if (options.resourceType === 'tracks' && Array.isArray(data.collection)) {
+                    data.collection = data.collection.filter(function (track) {
+                        // Odrzuć sample o długości 29.5–30.5s (29500-30500 ms)
+                        if (typeof track.duration === 'number' &&
+                            track.duration >= 29500 && track.duration <= 30500)
+                            return false;
+                        // Odrzuć utwory z ograniczeniem regionalnym
+                        if ('region_restricted' in track && track.region_restricted === true)
+                            return false;
+                        // Odrzuć niestreamowalne
+                        if (track.streamable !== true)
+                            return false;
+                        return true;
+                    });
+                }
                 return [2 /*return*/, data];
         }
     });
