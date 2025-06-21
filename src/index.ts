@@ -102,6 +102,23 @@ export class SCDL {
    * @returns A ReadableStream containing the audio data
   */
   async download (url: string, useDirectLink = true) {
+    // POBIERZ INFO O TRACKU
+    const info = await this.getInfo(url)
+    // ODRZUĆ SAMPLE ~30s (+/- 0.6s) I OGRANICZENIA REGIONALNE
+    if (
+      typeof info.duration === 'number' &&
+      info.duration >= 29500 &&
+      info.duration <= 30500
+    ) {
+      throw new Error('Ten utwór to najprawdopodobniej 30-sekundowy sample/prewka SoundCloud!')
+    }
+    if ('region_restricted' in info && info.region_restricted === true) {
+      throw new Error('Ten utwór jest niedostępny w Twoim regionie!')
+    }
+    if (info.streamable !== true) {
+      throw new Error('Nie można streamować tego utworu!')
+    }
+    // Jeśli przeszedł checki, pobieraj!
     return download(await this.prepareURL(url), await this.getClientID(), this.axios, useDirectLink)
   }
 
