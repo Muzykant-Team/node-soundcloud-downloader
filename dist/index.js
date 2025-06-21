@@ -136,16 +136,33 @@ var SCDL = /** @class */ (function () {
     SCDL.prototype.download = function (url, useDirectLink) {
         if (useDirectLink === void 0) { useDirectLink = true; }
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b;
+            var info, _a, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
+                        // POBIERZ INFO O TRACKU I DODAJ BLOKADĘ SAMPLE/REGION!
+                        return [4 /*yield*/, this.getInfo(url)];
+                    case 1:
+                        info = _c.sent();
+                        if (
+                          typeof info.duration === 'number' &&
+                          info.duration >= 29500 &&
+                          info.duration <= 30500
+                        ) {
+                          throw new Error('Ten utwór to najprawdopodobniej 30-sekundowy sample/prewka SoundCloud!');
+                        }
+                        if ('region_restricted' in info && info.region_restricted === true) {
+                          throw new Error('Ten utwór jest niedostępny w Twoim regionie!');
+                        }
+                        if (info.streamable !== true) {
+                          throw new Error('Nie można streamować tego utworu!');
+                        }
                         _a = download_1.download;
                         return [4 /*yield*/, this.prepareURL(url)];
-                    case 1:
+                    case 2:
                         _b = [_c.sent()];
                         return [4 /*yield*/, this.getClientID()];
-                    case 2: return [2 /*return*/, _a.apply(void 0, _b.concat([_c.sent(), this.axios, useDirectLink]))];
+                    case 3: return [2 /*return*/, _a.apply(void 0, _b.concat([_c.sent(), this.axios, useDirectLink]))];
                 }
             });
         });
