@@ -133,40 +133,59 @@ var SCDL = /** @class */ (function () {
      * @param useDirectLink - Whether or not to use the download link if the artist has set the track to be downloadable. This has erratic behaviour on some environments.
      * @returns A ReadableStream containing the audio data
     */
-    SCDL.prototype.download = function (url, useDirectLink) {
-        if (useDirectLink === void 0) { useDirectLink = true; }
-        return __awaiter(this, void 0, void 0, function () {
-            var info, _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        // POBIERZ INFO O TRACKU I DODAJ BLOKADĘ SAMPLE/REGION!
-                        return [4 /*yield*/, this.getInfo(url)];
-                    case 1:
-                        info = _c.sent();
-                        if (
-                          typeof info.duration === 'number' &&
-                          info.duration >= 29500 &&
-                          info.duration <= 30500
-                        ) {
-                          throw new Error('Ten utwór to najprawdopodobniej 30-sekundowy sample/prewka SoundCloud!');
-                        }
-                        if ('region_restricted' in info && info.region_restricted === true) {
-                          throw new Error('Ten utwór jest niedostępny w Twoim regionie!');
-                        }
-                        if (info.streamable !== true) {
-                          throw new Error('Nie można streamować tego utworu!');
-                        }
-                        _a = download_1.download;
-                        return [4 /*yield*/, this.prepareURL(url)];
-                    case 2:
-                        _b = [_c.sent()];
-                        return [4 /*yield*/, this.getClientID()];
-                    case 3: return [2 /*return*/, _a.apply(void 0, _b.concat([_c.sent(), this.axios, useDirectLink]))];
-                }
-            });
+// ...w środku metody download (lub tam gdzie wybierasz track z search)...
+SCDL.prototype.download = function (urlOrArray, useDirectLink) {
+    if (useDirectLink === void 0) { useDirectLink = true; }
+    return __awaiter(this, void 0, void 0, function () {
+        var tracks, picked, i, info, _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    if (Array.isArray(urlOrArray)) {
+                        tracks = urlOrArray;
+                    } else {
+                        tracks = [urlOrArray];
+                    }
+                    // Szukamy pierwszego poprawnego utworu
+                    picked = null;
+                    i = 0;
+                    _c.label = 1;
+                case 1:
+                    if (!(i < tracks.length)) return [3 /*break*/, 5];
+                    return [4 /*yield*/, this.getInfo(tracks[i])];
+                case 2:
+                    info = _c.sent();
+                    if (
+                        typeof info.duration === 'number' &&
+                        info.duration >= 29500 &&
+                        info.duration <= 30500
+                    ) {
+                        i++; return [3 /*break*/, 1];
+                    }
+                    if ('region_restricted' in info && info.region_restricted === true) {
+                        i++; return [3 /*break*/, 1];
+                    }
+                    if (info.streamable !== true) {
+                        i++; return [3 /*break*/, 1];
+                    }
+                    picked = tracks[i];
+                    return [3 /*break*/, 5];
+                case 3:
+                    i++; return [3 /*break*/, 1];
+                case 5:
+                    if (!picked) {
+                        throw new Error('Nie znaleziono pełnego utworu dostępnego w Twoim kraju!');
+                    }
+                    _a = download_1.download;
+                    return [4 /*yield*/, this.prepareURL(picked)];
+                case 6:
+                    _b = [_c.sent()];
+                    return [4 /*yield*/, this.getClientID()];
+                case 7: return [2 /*return*/, _a.apply(void 0, _b.concat([_c.sent(), this.axios, useDirectLink]))];
+            }
         });
-    };
+    });
+};
     /**
      *  Get the audio of a given track with the specified format
      * @param url - The URL of the Soundcloud track
