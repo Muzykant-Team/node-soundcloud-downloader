@@ -3,7 +3,6 @@ import { AxiosInstance } from 'axios'
 import { TrackInfo, User, SetInfo } from './info'
 import { appendURL, PaginatedQuery } from './util'
 
-/** @internal */
 const baseURL = 'https://api-v2.soundcloud.com/search'
 
 export interface RelatedResponse<T> extends PaginatedQuery<T> {
@@ -11,9 +10,9 @@ export interface RelatedResponse<T> extends PaginatedQuery<T> {
 }
 
 export interface SearchOptions {
-  limit?: number, // defaults to 10
-  offset?: number, // defaults to 0
-  resourceType?: SoundcloudResource | 'all', // defaults to 'tracks'
+  limit?: number,
+  offset?: number,
+  resourceType?: SoundcloudResource | 'all',
   query?: string,
   nextHref?: string
 }
@@ -59,13 +58,15 @@ export const search = async (
   }
   const { data } = await axiosInstance.get(url)
 
-  // DODANE: filtracja po stronie klienta, nie zmienia logiki, tylko poprawia wyniki
+  // Zmieniono: odrzucaj utwory z czasem trwania ~30s (np. 29500-30500 ms), nie tylko 30000
   if (options.resourceType === 'tracks' && Array.isArray(data.collection)) {
-    // Odfiltruj utwory, które mają dokładnie 30 sekund (30000 ms)
-    // oraz mają ograniczenia regionalne (jeśli pole istnieje)
-    // lub nie są streamowalne
     data.collection = data.collection.filter((track: any) => {
-      if (track.duration === 30000) return false
+      // Odrzucaj sample o długości w pobliżu 30s (29.5–30.5 sekundy)
+      if (
+        typeof track.duration === 'number' &&
+        track.duration >= 29500 &&
+        track.duration <= 30500
+      ) return false
       if ('region_restricted' in track && track.region_restricted === true) return false
       if (track.streamable !== true) return false
       return true
