@@ -1,11 +1,11 @@
 {
   "name": "soundcloud-downloader",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "Download Soundcloud audio with Node.js",
   "main": "index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "docs": "typedoc --out docs ./src --excludeInternal; touch ./docs/.nojekyll",
+    "docs": "typedoc --out docs ./src --excludeInternal && touch ./docs/.nojekyll",
     "build": "npx tsc src/*.ts --outDir dist --esModuleInterop",
     "publish-script": "./publish.sh",
     "test": "jest --runInBand"
@@ -25,6 +25,9 @@
   },
   "author": "Zack Radisic",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "dependencies": {
     "@babel/runtime": "^7.28.4",
     "axios": "^1.12.1",
@@ -32,7 +35,6 @@
     "m3u8stream": "^0.8.6",
     "soundcloud-key-fetch": "^1.0.13"
   },
-  "typings": "./index.d.ts",
   "devDependencies": {
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.4",
