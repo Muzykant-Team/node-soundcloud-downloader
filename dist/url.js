@@ -88,7 +88,12 @@ var stripMobilePrefix = function (url) {
 };
 exports.stripMobilePrefix = stripMobilePrefix;
 var isFirebaseURL = function (url) {
-    return url.includes('https://soundcloud.app.goo.gl');
+    try {
+        return new URL(url).hostname === 'soundcloud.app.goo.gl';
+    }
+    catch (_a) {
+        return false;
+    }
 };
 exports.isFirebaseURL = isFirebaseURL;
 var convertFirebaseURL = function (url, axiosInstance) { return __awaiter(void 0, void 0, void 0, function () {
