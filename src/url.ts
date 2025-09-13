@@ -41,10 +41,14 @@ export const isPersonalizedTrackURL = (url: string) => {
 }
 
 export const stripMobilePrefix = (url: string) => {
-  if (!url.includes('m.soundcloud.com')) return url
-  const _url = new URL(url)
-  _url.hostname = 'soundcloud.com'
-  return _url.toString()
+  try {
+    const _url = new URL(url)
+    if (_url.hostname !== 'm.soundcloud.com') return url
+    _url.hostname = 'soundcloud.com'
+    return _url.toString()
+  } catch (e) {
+    return url
+  }
 }
 
 export const isFirebaseURL = (url: string) => {
