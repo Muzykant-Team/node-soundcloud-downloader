@@ -47,7 +47,6 @@ export const stripMobilePrefix = (url: string) => {
     _url.hostname = 'soundcloud.com'
     return _url.toString()
   } catch (e) {
-    // If the input is not a valid URL, return as is
     return url
   }
 }
