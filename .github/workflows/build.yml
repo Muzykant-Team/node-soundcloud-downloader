@@ -1,0 +1,43 @@
+name: Auto Build Dist
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'tsconfig.json'
+
+jobs:
+  auto-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '24.x'
+        
+    - name: Install and build
+      run: |
+        npm install --legacy-peer-deps
+        npm run build
+        
+    - name: Auto-commit dist
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Auto-build Bot"
+        
+        git add dist/
+        
+        if git diff --staged --quiet; then
+          echo "Brak zmian w dist"
+        else
+          git commit -m "🚀 Auto-build dist [skip ci]"
+          git push origin master
+          echo "Dist zaktualizowany!"
+        fi
