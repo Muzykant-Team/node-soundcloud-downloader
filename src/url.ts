@@ -52,7 +52,11 @@ export const stripMobilePrefix = (url: string) => {
 }
 
 export const isFirebaseURL = (url: string) => {
-  return url.includes('https://soundcloud.app.goo.gl')
+  try {
+    return new URL(url).hostname === 'soundcloud.app.goo.gl'
+  } catch {
+    return false
+  }
 }
 
 export const convertFirebaseURL = async (url: string, axiosInstance: AxiosInstance) => {
