@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,10 +35,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.related = exports.search = void 0;
 var util_1 = require("./util");
-/** @internal */
 var baseURL = 'https://api-v2.soundcloud.com/search';
 var validResourceTypes = ['tracks', 'users', 'albums', 'playlists', 'all'];
 /** @internal */
@@ -55,24 +63,31 @@ var search = function (options, axiosInstance, clientID) { return __awaiter(void
                 if (!options.resourceType)
                     options.resourceType = 'tracks';
                 if (options.nextHref) {
-                    url = util_1.appendURL(options.nextHref, 'client_id', clientID);
+                    url = (0, util_1.appendURL)(options.nextHref, 'client_id', clientID);
                 }
                 else if (options.query) {
-                    if (!validResourceTypes.includes(options.resourceType))
-                        throw new Error(options.resourceType + " is not one of " + validResourceTypes.map(function (str) { return "'" + str + "'"; }).join(', '));
-                    url = util_1.appendURL("" + baseURL + (options.resourceType === 'all' ? '' : "/" + options.resourceType), 'client_id', clientID, 'q', options.query, 'limit', '' + options.limit, 'offset', '' + options.offset);
+                    if (!validResourceTypes.includes(options.resourceType)) {
+                        throw new Error("".concat(options.resourceType, " is not one of ").concat(validResourceTypes
+                            .map(function (str) { return "'".concat(str, "'"); })
+                            .join(', ')));
+                    }
+                    url = (0, util_1.appendURL)("".concat(baseURL).concat(options.resourceType === 'all' ? '' : "/".concat(options.resourceType)), 'client_id', clientID, 'q', options.query, 'limit', '' + options.limit, 'offset', '' + options.offset);
                 }
                 else {
                     throw new Error('One of options.query or options.nextHref is required');
                 }
-                return [4 /*yield*/, axiosInstance.get(url)];
+                return [4 /*yield*/, axiosInstance.get(url)
+                    // Zmieniono: odrzucaj utwory z czasem trwania ~30s (np. 29500-30500 ms), nie tylko 30000
+                ];
             case 1:
                 data = (_a.sent()).data;
-                // Szukaj PIERWSZY poprawny utwór. Jeżeli żaden nie spełnia warunków, kolekcja będzie pusta.
+                // Zmieniono: odrzucaj utwory z czasem trwania ~30s (np. 29500-30500 ms), nie tylko 30000
                 if (options.resourceType === 'tracks' && Array.isArray(data.collection)) {
-                    var filtered = data.collection.filter(function (track) {
+                    data.collection = data.collection.filter(function (track) {
+                        // Odrzucaj sample o długości w pobliżu 30s (29.5–30.5 sekundy)
                         if (typeof track.duration === 'number' &&
-                            track.duration >= 29500 && track.duration <= 30500)
+                            track.duration >= 29500 &&
+                            track.duration <= 30500)
                             return false;
                         if ('region_restricted' in track && track.region_restricted === true)
                             return false;
@@ -80,7 +95,6 @@ var search = function (options, axiosInstance, clientID) { return __awaiter(void
                             return false;
                         return true;
                     });
-                    data.collection = filtered;
                 }
                 return [2 /*return*/, data];
         }
@@ -88,14 +102,18 @@ var search = function (options, axiosInstance, clientID) { return __awaiter(void
 }); };
 exports.search = search;
 /** @internal */
-var related = function (id, limit, offset, axiosInstance, clientID) {
-    if (limit === void 0) { limit = 10; }
-    if (offset === void 0) { offset = 0; }
-    return __awaiter(void 0, void 0, void 0, function () {
+var related = function (id_1) {
+    var args_1 = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args_1[_i - 1] = arguments[_i];
+    }
+    return __awaiter(void 0, __spreadArray([id_1], args_1, true), void 0, function (id, limit, offset, axiosInstance, clientID) {
         var data;
+        if (limit === void 0) { limit = 10; }
+        if (offset === void 0) { offset = 0; }
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axiosInstance.get(util_1.appendURL("https://api-v2.soundcloud.com/tracks/" + id + "/related", 'client_id', clientID, 'offset', '' + offset, 'limit', '' + limit))];
+                case 0: return [4 /*yield*/, axiosInstance.get((0, util_1.appendURL)("https://api-v2.soundcloud.com/tracks/".concat(id, "/related"), 'client_id', clientID, 'offset', '' + offset, 'limit', '' + limit))];
                 case 1:
                     data = (_a.sent()).data;
                     return [2 /*return*/, data];

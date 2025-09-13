@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLikes = void 0;
 var util_1 = require("./util");
 var baseURL = 'https://api-v2.soundcloud.com/users/';
@@ -52,10 +52,10 @@ var getLikes = function (options, clientID, axiosInstance) { return __awaiter(vo
                         options.limit = -1;
                     if (!options.offset)
                         options.offset = 0;
-                    u = util_1.appendURL("https://api-v2.soundcloud.com/users/" + options.id + "/likes", 'client_id', clientID, 'limit', '' + (options.limit === -1 ? 200 : options.limit), 'offset', '' + options.offset);
+                    u = (0, util_1.appendURL)("https://api-v2.soundcloud.com/users/".concat(options.id, "/likes"), 'client_id', clientID, 'limit', '' + (options.limit === -1 ? 200 : options.limit), 'offset', '' + options.offset);
                 }
                 else {
-                    u = util_1.appendURL(options.nextHref, 'client_id', clientID);
+                    u = (0, util_1.appendURL)(options.nextHref, 'client_id', clientID);
                 }
                 nextHref = 'start';
                 _b.label = 1;
@@ -70,7 +70,7 @@ var getLikes = function (options, clientID, axiosInstance) { return __awaiter(vo
                 if (query.collection.length === 0)
                     return [2 /*return*/, data];
                 if (query.collection[0].kind !== 'like')
-                    throw util_1.kindMismatchError('like', query.collection[0].kind);
+                    throw (0, util_1.kindMismatchError)('like', query.collection[0].kind);
                 // Only add tracks (for now)
                 query.collection = query.collection.reduce(function (prev, curr) { return curr.track ? prev.concat(curr) : prev; }, []);
                 if (!response) {
@@ -92,7 +92,7 @@ var getLikes = function (options, clientID, axiosInstance) { return __awaiter(vo
                         url.searchParams.set('limit', '' + options.limit);
                         nextHref = url.toString();
                     }
-                    u = util_1.appendURL(nextHref, 'client_id', clientID);
+                    u = (0, util_1.appendURL)(nextHref, 'client_id', clientID);
                 }
                 return [3 /*break*/, 1];
             case 3: return [2 /*return*/, response];

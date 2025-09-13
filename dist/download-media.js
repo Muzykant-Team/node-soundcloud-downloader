@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -39,7 +39,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var m3u8stream_1 = __importDefault(require("m3u8stream"));
 var protocols_1 = __importDefault(require("./protocols"));
 var util_1 = require("./util");
@@ -53,7 +53,7 @@ var fromMedia = function (media, clientID, axiosInstance) { return __awaiter(voi
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 5, , 6]);
-                link = util_1.appendURL(media.url, 'client_id', clientID);
+                link = (0, util_1.appendURL)(media.url, 'client_id', clientID);
                 return [4 /*yield*/, axiosInstance.get(link, {
                         headers: {
                             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36',
@@ -65,8 +65,8 @@ var fromMedia = function (media, clientID, axiosInstance) { return __awaiter(voi
             case 2:
                 res = _a.sent();
                 if (!res.data.url)
-                    throw new Error("Invalid response from Soundcloud. Check if the URL provided is correct: " + link);
-                if (!(media.format.protocol === protocols_1["default"].PROGRESSIVE)) return [3 /*break*/, 4];
+                    throw new Error("Invalid response from Soundcloud. Check if the URL provided is correct: ".concat(link));
+                if (!(media.format.protocol === protocols_1.default.PROGRESSIVE)) return [3 /*break*/, 4];
                 return [4 /*yield*/, axiosInstance.get(res.data.url, {
                         withCredentials: true,
                         responseType: 'stream'
@@ -74,10 +74,10 @@ var fromMedia = function (media, clientID, axiosInstance) { return __awaiter(voi
             case 3:
                 r = _a.sent();
                 return [2 /*return*/, r.data];
-            case 4: return [2 /*return*/, m3u8stream_1["default"](res.data.url)];
+            case 4: return [2 /*return*/, (0, m3u8stream_1.default)(res.data.url)];
             case 5:
                 err_1 = _a.sent();
-                throw util_1.handleRequestErrs(err_1);
+                throw (0, util_1.handleRequestErrs)(err_1);
             case 6: return [2 /*return*/];
         }
     });
@@ -87,4 +87,4 @@ var validatemedia = function (media) {
         return false;
     return true;
 };
-exports["default"] = fromMedia;
+exports.default = fromMedia;

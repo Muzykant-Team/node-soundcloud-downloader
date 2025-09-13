@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,14 +35,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTrackInfoByID = exports.getSetInfo = exports.getInfoBase = void 0;
 var util_1 = require("./util");
 var getTrackInfoBase = function (clientID, axiosRef, ids, playlistID, playlistSecretToken) { return __awaiter(void 0, void 0, void 0, function () {
@@ -50,9 +52,9 @@ var getTrackInfoBase = function (clientID, axiosRef, ids, playlistID, playlistSe
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                url = util_1.appendURL('https://api-v2.soundcloud.com/tracks', 'ids', ids.join(','), 'client_id', clientID);
+                url = (0, util_1.appendURL)('https://api-v2.soundcloud.com/tracks', 'ids', ids.join(','), 'client_id', clientID);
                 if (playlistID && playlistSecretToken) {
-                    url = util_1.appendURL(url, 'playlistId', '' + playlistID, 'playlistSecretToken', playlistSecretToken);
+                    url = (0, util_1.appendURL)(url, 'playlistId', '' + playlistID, 'playlistSecretToken', playlistSecretToken);
                 }
                 _a.label = 1;
             case 1:
@@ -63,7 +65,7 @@ var getTrackInfoBase = function (clientID, axiosRef, ids, playlistID, playlistSe
                 return [2 /*return*/, data];
             case 3:
                 err_1 = _a.sent();
-                throw util_1.handleRequestErrs(err_1);
+                throw (0, util_1.handleRequestErrs)(err_1);
             case 4: return [2 /*return*/];
         }
     });
@@ -75,7 +77,7 @@ var getInfoBase = function (url, clientID, axiosRef) { return __awaiter(void 0, 
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, axiosRef.get(util_1.appendURL('https://api-v2.soundcloud.com/resolve', 'url', url, 'client_id', clientID), {
+                return [4 /*yield*/, axiosRef.get((0, util_1.appendURL)('https://api-v2.soundcloud.com/resolve', 'url', url, 'client_id', clientID), {
                         withCredentials: true
                     })];
             case 1:
@@ -83,8 +85,7 @@ var getInfoBase = function (url, clientID, axiosRef) { return __awaiter(void 0, 
                 return [2 /*return*/, res.data];
             case 2:
                 err_2 = _a.sent();
-                console.log(err_2);
-                throw util_1.handleRequestErrs(err_2);
+                throw (0, util_1.handleRequestErrs)(err_2);
             case 3: return [2 /*return*/];
         }
     });
@@ -95,10 +96,10 @@ var getSetInfoBase = function (url, clientID, axiosRef) { return __awaiter(void 
     var setInfo, temp, playlistID, playlistSecretToken, incompleteTracks, completeTracks, ids, splitIds, x, x, i, promises, info_1, info;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, exports.getInfoBase(url, clientID, axiosRef)];
+            case 0: return [4 /*yield*/, (0, exports.getInfoBase)(url, clientID, axiosRef)];
             case 1:
                 setInfo = _a.sent();
-                temp = __spreadArrays(setInfo.tracks).map(function (track) { return track.id; });
+                temp = __spreadArray([], setInfo.tracks, true).map(function (track) { return track.id; });
                 playlistID = setInfo.id;
                 playlistSecretToken = setInfo.secret_token;
                 incompleteTracks = setInfo.tracks.filter(function (track) { return !track.title; });
@@ -118,7 +119,7 @@ var getSetInfoBase = function (url, clientID, axiosRef) { return __awaiter(void 
                 }
                 promises = splitIds.map(function (ids) { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken)];
+                        case 0: return [4 /*yield*/, (0, exports.getTrackInfoByID)(clientID, axiosRef, ids, playlistID, playlistSecretToken)];
                         case 1: return [2 /*return*/, _a.sent()];
                     }
                 }); }); });
@@ -128,7 +129,7 @@ var getSetInfoBase = function (url, clientID, axiosRef) { return __awaiter(void 
                 setInfo.tracks = completeTracks.concat.apply(completeTracks, info_1);
                 setInfo.tracks = sortTracks(setInfo.tracks, temp);
                 return [2 /*return*/, setInfo];
-            case 3: return [4 /*yield*/, exports.getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken)];
+            case 3: return [4 /*yield*/, (0, exports.getTrackInfoByID)(clientID, axiosRef, ids, playlistID, playlistSecretToken)];
             case 4:
                 info = _a.sent();
                 setInfo.tracks = completeTracks.concat(info);
@@ -159,7 +160,7 @@ var getInfo = function (url, clientID, axiosInstance) { return __awaiter(void 0,
         switch (_a.label) {
             case 0:
                 if (!url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) return [3 /*break*/, 2];
-                idString = util_1.extractIDFromPersonalizedTrackURL(url);
+                idString = (0, util_1.extractIDFromPersonalizedTrackURL)(url);
                 if (!idString)
                     throw new Error('Could not parse track ID from given URL: ' + url);
                 id = void 0;
@@ -169,13 +170,13 @@ var getInfo = function (url, clientID, axiosInstance) { return __awaiter(void 0,
                 catch (err) {
                     throw new Error('Could not parse track ID from given URL: ' + url);
                 }
-                return [4 /*yield*/, exports.getTrackInfoByID(clientID, axiosInstance, [id])];
+                return [4 /*yield*/, (0, exports.getTrackInfoByID)(clientID, axiosInstance, [id])];
             case 1:
                 data = (_a.sent())[0];
                 if (!data)
                     throw new Error('Could not find track with ID: ' + id);
                 return [3 /*break*/, 4];
-            case 2: return [4 /*yield*/, exports.getInfoBase(url, clientID, axiosInstance)];
+            case 2: return [4 /*yield*/, (0, exports.getInfoBase)(url, clientID, axiosInstance)];
             case 3:
                 data = _a.sent();
                 _a.label = 4;
@@ -211,4 +212,4 @@ var getTrackInfoByID = function (clientID, axiosInstance, ids, playlistID, playl
     });
 }); };
 exports.getTrackInfoByID = getTrackInfoByID;
-exports["default"] = getInfo;
+exports.default = getInfo;

@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports._PROTOCOLS = void 0;
 /**
  * Soundcloud streams tracks using these protocols.
@@ -14,4 +14,4 @@ exports._PROTOCOLS = {
     HLS: STREAMING_PROTOCOLS.HLS,
     PROGRESSIVE: STREAMING_PROTOCOLS.PROGRESSIVE
 };
-exports["default"] = STREAMING_PROTOCOLS;
+exports.default = STREAMING_PROTOCOLS;

@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -11,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -28,12 +42,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -57,7 +71,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.create = exports.SCDL = void 0;
 var soundcloud_key_fetch_1 = __importDefault(require("soundcloud-key-fetch"));
 var info_1 = __importStar(require("./info"));
@@ -78,13 +92,13 @@ var downloadFormat = function (url, clientID, format, axiosInstance) { return __
     var info, filtered;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, info_1["default"](url, clientID, axiosInstance)];
+            case 0: return [4 /*yield*/, (0, info_1.default)(url, clientID, axiosInstance)];
             case 1:
                 info = _a.sent();
-                filtered = filter_media_1["default"](info.media.transcodings, { format: format });
+                filtered = (0, filter_media_1.default)(info.media.transcodings, { format: format });
                 if (filtered.length === 0)
-                    throw new Error("Could not find media with specified format: (" + format + ")");
-                return [4 /*yield*/, download_1.fromMediaObj(filtered[0], clientID, axiosInstance)];
+                    throw new Error("Could not find media with specified format: (".concat(format, ")"));
+                return [4 /*yield*/, (0, download_1.fromMediaObj)(filtered[0], clientID, axiosInstance)];
             case 2: return [2 /*return*/, _a.sent()];
         }
     });
@@ -108,7 +122,7 @@ var SCDL = /** @class */ (function () {
             this.setAxiosInstance(options.axiosInstance);
         }
         else {
-            this.setAxiosInstance(axios_1["default"]);
+            this.setAxiosInstance(axios_1.default);
         }
         if (!options.stripMobilePrefix)
             options.stripMobilePrefix = true;
@@ -124,7 +138,7 @@ var SCDL = /** @class */ (function () {
      * @returns An array of Transcodings that match the predicate object
      */
     SCDL.prototype.filterMedia = function (media, predicateObj) {
-        return filter_media_1["default"](media, predicateObj);
+        return (0, filter_media_1.default)(media, predicateObj);
     };
     /**
      * Get the audio of a given track. It returns the first format found.
@@ -133,59 +147,41 @@ var SCDL = /** @class */ (function () {
      * @param useDirectLink - Whether or not to use the download link if the artist has set the track to be downloadable. This has erratic behaviour on some environments.
      * @returns A ReadableStream containing the audio data
     */
-// ...w środku metody download (lub tam gdzie wybierasz track z search)...
-SCDL.prototype.download = function (urlOrArray, useDirectLink) {
-    if (useDirectLink === void 0) { useDirectLink = true; }
-    return __awaiter(this, void 0, void 0, function () {
-        var tracks, picked, i, info, _a, _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    if (Array.isArray(urlOrArray)) {
-                        tracks = urlOrArray;
-                    } else {
-                        tracks = [urlOrArray];
-                    }
-                    // Szukamy pierwszego poprawnego utworu
-                    picked = null;
-                    i = 0;
-                    _c.label = 1;
-                case 1:
-                    if (!(i < tracks.length)) return [3 /*break*/, 5];
-                    return [4 /*yield*/, this.getInfo(tracks[i])];
-                case 2:
-                    info = _c.sent();
-                    if (
-                        typeof info.duration === 'number' &&
-                        info.duration >= 29500 &&
-                        info.duration <= 30500
-                    ) {
-                        i++; return [3 /*break*/, 1];
-                    }
-                    if ('region_restricted' in info && info.region_restricted === true) {
-                        i++; return [3 /*break*/, 1];
-                    }
-                    if (info.streamable !== true) {
-                        i++; return [3 /*break*/, 1];
-                    }
-                    picked = tracks[i];
-                    return [3 /*break*/, 5];
-                case 3:
-                    i++; return [3 /*break*/, 1];
-                case 5:
-                    if (!picked) {
-                        throw new Error('Nie znaleziono pełnego utworu dostępnego w Twoim kraju!');
-                    }
-                    _a = download_1.download;
-                    return [4 /*yield*/, this.prepareURL(picked)];
-                case 6:
-                    _b = [_c.sent()];
-                    return [4 /*yield*/, this.getClientID()];
-                case 7: return [2 /*return*/, _a.apply(void 0, _b.concat([_c.sent(), this.axios, useDirectLink]))];
-            }
+    SCDL.prototype.download = function (url_2) {
+        return __awaiter(this, arguments, void 0, function (url, useDirectLink) {
+            var info, _a, _b;
+            if (useDirectLink === void 0) { useDirectLink = true; }
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4 /*yield*/, this.getInfo(url)
+                        // ODRZUĆ SAMPLE ~30s (+/- 0.6s) I OGRANICZENIA REGIONALNE
+                    ];
+                    case 1:
+                        info = _c.sent();
+                        // ODRZUĆ SAMPLE ~30s (+/- 0.6s) I OGRANICZENIA REGIONALNE
+                        if (typeof info.duration === 'number' &&
+                            info.duration >= 29500 &&
+                            info.duration <= 30500) {
+                            throw new Error('Ten utwór to najprawdopodobniej 30-sekundowy sample/prewka SoundCloud!');
+                        }
+                        if ('region_restricted' in info && info.region_restricted === true) {
+                            throw new Error('Ten utwór jest niedostępny w Twoim regionie!');
+                        }
+                        if (info.streamable !== true) {
+                            throw new Error('Nie można streamować tego utworu!');
+                        }
+                        _a = download_1.download;
+                        return [4 /*yield*/, this.prepareURL(url)];
+                    case 2:
+                        _b = [_c.sent()];
+                        return [4 /*yield*/, this.getClientID()];
+                    case 3: 
+                    // Jeśli przeszedł checki, pobieraj!
+                    return [2 /*return*/, _a.apply(void 0, _b.concat([_c.sent(), this.axios, useDirectLink]))];
+                }
+            });
         });
-    });
-};
+    };
     /**
      *  Get the audio of a given track with the specified format
      * @param url - The URL of the Soundcloud track
@@ -218,7 +214,7 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        _a = info_1["default"];
+                        _a = info_1.default;
                         return [4 /*yield*/, this.prepareURL(url)];
                     case 1:
                         _b = [_c.sent()];
@@ -292,10 +288,10 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
      * @param limit - The number of results to return
      * @param offset - Used for pagination, set to 0 if you will not use this feature.
      */
-    SCDL.prototype.related = function (id, limit, offset) {
-        if (offset === void 0) { offset = 0; }
-        return __awaiter(this, void 0, void 0, function () {
+    SCDL.prototype.related = function (id_1, limit_1) {
+        return __awaiter(this, arguments, void 0, function (id, limit, offset) {
             var _a, _b;
+            if (offset === void 0) { offset = 0; }
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -354,12 +350,12 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
                         return [3 /*break*/, 8];
                     case 5:
                         if (!options.nextHref) return [3 /*break*/, 7];
-                        return [4 /*yield*/, likes_1.getLikes(options, clientID, this.axios)];
+                        return [4 /*yield*/, (0, likes_1.getLikes)(options, clientID, this.axios)];
                     case 6: return [2 /*return*/, _b.sent()];
                     case 7: throw new Error('options.id or options.profileURL must be provided.');
                     case 8:
                         options.id = id;
-                        return [2 /*return*/, likes_1.getLikes(options, clientID, this.axios)];
+                        return [2 /*return*/, (0, likes_1.getLikes)(options, clientID, this.axios)];
                 }
             });
         });
@@ -396,28 +392,28 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
      * @param url - URL of the Soundcloud track
     */
     SCDL.prototype.isValidUrl = function (url) {
-        return url_1["default"](url, this.convertFirebaseLinks, this.stripMobilePrefix);
+        return (0, url_1.default)(url, this.convertFirebaseLinks, this.stripMobilePrefix);
     };
     /**
      * Returns whether or not the given URL is a valid playlist SoundCloud URL
      * @param url - The URL to check
      */
     SCDL.prototype.isPlaylistURL = function (url) {
-        return url_1.isPlaylistURL(url);
+        return (0, url_1.isPlaylistURL)(url);
     };
     /**
      * Returns true if the given URL is a personalized track URL. (of the form https://soundcloud.com/discover/sets/personalized-tracks::user-sdlkfjsldfljs:847104873)
      * @param url - The URL to check
      */
     SCDL.prototype.isPersonalizedTrackURL = function (url) {
-        return url_1.isPersonalizedTrackURL(url);
+        return (0, url_1.isPersonalizedTrackURL)(url);
     };
     /**
      * Returns true if the given URL is a Firebase URL (of the form https://soundcloud.app.goo.gl/XXXXXXXX)
      * @param url - The URL to check
      */
     SCDL.prototype.isFirebaseURL = function (url) {
-        return url_1.isFirebaseURL(url);
+        return (0, url_1.isFirebaseURL)(url);
     };
     SCDL.prototype.getClientID = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -450,7 +446,7 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
                         c = _c.sent();
                         if (!!c) return [3 /*break*/, 3];
                         _a = this;
-                        return [4 /*yield*/, soundcloud_key_fetch_1["default"].fetchKey()];
+                        return [4 /*yield*/, soundcloud_key_fetch_1.default.fetchKey()];
                     case 2:
                         _a._clientID = _c.sent();
                         data = {
@@ -468,7 +464,7 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
                     case 4: return [3 /*break*/, 7];
                     case 5:
                         _b = this;
-                        return [4 /*yield*/, soundcloud_key_fetch_1["default"].fetchKey()];
+                        return [4 /*yield*/, soundcloud_key_fetch_1.default.fetchKey()];
                     case 6:
                         _b._clientID = _c.sent();
                         _c.label = 7;
@@ -534,10 +530,10 @@ SCDL.prototype.download = function (urlOrArray, useDirectLink) {
                 switch (_a.label) {
                     case 0:
                         if (this.stripMobilePrefix)
-                            url = url_1.stripMobilePrefix(url);
+                            url = (0, url_1.stripMobilePrefix)(url);
                         if (!this.convertFirebaseLinks) return [3 /*break*/, 2];
-                        if (!url_1.isFirebaseURL(url)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, url_1.convertFirebaseURL(url, this.axios)];
+                        if (!(0, url_1.isFirebaseURL)(url)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, (0, url_1.convertFirebaseURL)(url, this.axios)];
                     case 1:
                         url = _a.sent();
                         _a.label = 2;
@@ -556,4 +552,4 @@ var create = function (options) { return new SCDL(options); };
 exports.create = create;
 scdl.STREAMING_PROTOCOLS = protocols_1._PROTOCOLS;
 scdl.FORMATS = formats_1._FORMATS;
-exports["default"] = scdl;
+exports.default = scdl;

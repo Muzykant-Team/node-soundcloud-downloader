@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports._FORMATS = void 0;
 /**
  * Audio formats a track can be encoded in.
@@ -14,4 +14,4 @@ exports._FORMATS = {
     MP3: FORMATS.MP3,
     OPUS: FORMATS.OPUS
 };
-exports["default"] = FORMATS;
+exports.default = FORMATS;
