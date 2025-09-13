@@ -7,6 +7,8 @@ on:
       - 'src/**'
       - 'tsconfig.json'
 
+permissions:
+  contents: write
 jobs:
   auto-build:
     runs-on: ubuntu-latest
