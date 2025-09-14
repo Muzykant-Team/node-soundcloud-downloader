@@ -32,6 +32,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      id-token: write
     runs-on: windows-latest
 
     steps:
