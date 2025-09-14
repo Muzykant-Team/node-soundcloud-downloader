@@ -9,7 +9,7 @@ const fromURL = async (url: string, clientID: string, axiosInstance: AxiosInstan
     const link = appendURL(url, 'client_id', clientID)
     const res = await axiosInstance.get(link, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
         Accept: '*/*',
         'Accept-Encoding': 'gzip, deflate, br'
       },
