@@ -6,14 +6,19 @@ import { handleRequestErrs, appendURL } from './util'
 import { Transcoding } from './info'
 import { AxiosInstance } from 'axios'
 
+const validatemedia = (media: Transcoding) => {
+  if (!media.url || !media.format) return false
+  return true
+}
+
 const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: AxiosInstance): Promise<any | m3u8stream.Stream> => {
-  if (!validatemedia) throw new Error('Invalid media object provided')
+  if (!validatemedia(media)) throw new Error('Invalid media object provided')
 
   try {
     const link = appendURL(media.url, 'client_id', clientID)
     const res = await axiosInstance.get(link, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
         Accept: '*/*',
         'Accept-Encoding': 'gzip, deflate, br'
       },
@@ -32,11 +37,6 @@ const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: Ax
   } catch (err) {
     throw handleRequestErrs(err)
   }
-}
-
-const validatemedia = (media: Transcoding) => {
-  if (!media.url || !media.format) return false
-  return true
 }
 
 export default fromMedia
