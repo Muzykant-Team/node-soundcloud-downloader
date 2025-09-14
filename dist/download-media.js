@@ -43,12 +43,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var m3u8stream_1 = __importDefault(require("m3u8stream"));
 var protocols_1 = __importDefault(require("./protocols"));
 var util_1 = require("./util");
+var validatemedia = function (media) {
+    if (!media.url || !media.format)
+        return false;
+    return true;
+};
 var fromMedia = function (media, clientID, axiosInstance) { return __awaiter(void 0, void 0, void 0, function () {
     var link, res, r, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!validatemedia)
+                if (!validatemedia(media))
                     throw new Error('Invalid media object provided');
                 _a.label = 1;
             case 1:
@@ -56,7 +61,7 @@ var fromMedia = function (media, clientID, axiosInstance) { return __awaiter(voi
                 link = (0, util_1.appendURL)(media.url, 'client_id', clientID);
                 return [4 /*yield*/, axiosInstance.get(link, {
                         headers: {
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
                             Accept: '*/*',
                             'Accept-Encoding': 'gzip, deflate, br'
                         },
@@ -82,9 +87,4 @@ var fromMedia = function (media, clientID, axiosInstance) { return __awaiter(voi
         }
     });
 }); };
-var validatemedia = function (media) {
-    if (!media.url || !media.format)
-        return false;
-    return true;
-};
 exports.default = fromMedia;
