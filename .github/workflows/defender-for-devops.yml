@@ -29,6 +29,10 @@ on:
 jobs:
   MSDO:
     # currently only windows latest is supported
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
     runs-on: windows-latest
 
     steps:
