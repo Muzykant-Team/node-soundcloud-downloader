@@ -1,6 +1,6 @@
 {
-  "name": "soundcloud-downloader",
-  "version": "2.0.0",
+  "name": "@muzykant/soundcloud-downloader",
+  "version": "2.0.1",
   "description": "Download Soundcloud audio with Node.js",
   "main": "index.js",
   "types": "./index.d.ts",
@@ -23,7 +23,9 @@
     "type": "git",
     "url": "https://github.com/PatrykPatryk5/node-soundcloud-downloader"
   },
-  "author": "Zack Radisic, Muzykant Team",
+  "author": "Zack Radisic",
+  "maintainers": ["Muzykant Team"],
+  "contributors": ["Muzykant Team"],
   "license": "MIT",
   "engines": {
     "node": ">=20.9.0"
