@@ -1,4 +1,4 @@
-# @muzykant/node-soundcloud-downloader — Muzykant Team Fork
+# node-soundcloud-downloader — Muzykant Team Fork
 
 > ⚡️ This is a **maintained fork** of [node-soundcloud-downloader](https://github.com/zackradisic/node-soundcloud-downloader)  
 > 👤 Originally created and developed by **[Zack Radisic](https://github.com/zackradisic)** — © 2021  
