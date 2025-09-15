@@ -103,7 +103,7 @@ If I have the time and there is enough demand, I am interested in implementing t
 - Ability to use HTTP Live Streaming (HLS) ✅
 - Some more integrations with Discord.js like selecting best format for voice channels
 
-If you have any feature requests, suggestions or questions do not hesistate to post them in the issues section
+If you have any feature requests, suggestions or questions do not hesitate to post them in the issues section
 
 ## Disclaimer
 I do not support piracy and this package is not designed for circumventing the technological measures employed
