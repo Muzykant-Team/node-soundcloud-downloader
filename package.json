@@ -21,9 +21,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/zackradisic/node-soundcloud-downloader"
+    "url": "https://github.com/PatrykPatryk5/node-soundcloud-downloader"
   },
-  "author": "Zack Radisic",
+  "author": "Zack Radisic, Muzykant Team",
   "license": "MIT",
   "engines": {
     "node": ">=20.9.0"
