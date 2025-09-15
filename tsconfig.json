@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es2022",
         "outDir": "dist",
         "module": "commonjs",
         "esModuleInterop": true,
