@@ -1,6 +1,6 @@
 module.exports = {
   env: {
-    es2020: true,
+    es2022: true,
     node: true,
     'jest/globals': true
   },
@@ -9,7 +9,7 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 11,
+    ecmaVersion: 'latest',
     sourceType: 'module'
   },
   plugins: [

@@ -1,9 +1,16 @@
+# node-soundcloud-downloader — Muzykant Team Fork
+
+> ⚡️ This is a **maintained fork** of [node-soundcloud-downloader](https://github.com/zackradisic/node-soundcloud-downloader)  
+> 👤 Originally created and developed by **[Zack Radisic](https://github.com/zackradisic)** — © 2021  
+> 🛠️ Currently maintained with minimal changes by **Muzykant Team (2025)** — https://muzykant.xyz  
+> ⚠️ This fork is provided **AS IS**, **without any warranty** — updates and fixes are **minimal and not guaranteed**.  
+> 📄 Licensed under the [MIT License](./LICENSE.md).
+
 ![node-soundcloud-downloader](https://socialify.git.ci/zackradisic/node-soundcloud-downloader/image?font=Raleway&language=1&owner=1&stargazers=1&theme=Dark)
 
 
 [![Zack Radisic](https://img.shields.io/badge/Author-Zack%20Radisic-green)](https://github.com/zackradisic)
 [![downloads](https://img.shields.io/npm/dt/soundcloud-downloader)](https://www.npmjs.com/package/soundcloud-downloader)
-![Node.js CI](https://github.com/zackradisic/node-soundcloud-downloader/workflows/Node.js%20CI/badge.svg)
 
 
 Download Soundcloud tracks with Node.js
@@ -95,7 +102,7 @@ If I have the time and there is enough demand, I am interested in implementing t
 - Ability to use HTTP Live Streaming (HLS) ✅
 - Some more integrations with Discord.js like selecting best format for voice channels
 
-If you have any feature requests, suggestions or questions do not hesistate to post them in the issues section
+If you have any feature requests, suggestions or questions do not hesitate to post them in the issues section
 
 ## Disclaimer
 I do not support piracy and this package is not designed for circumventing the technological measures employed
