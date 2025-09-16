@@ -1,40 +1,17 @@
-name: SLSA generic generator
+name: SLSA Node.js builder
 on:
   release:
     types: [created]
-
 permissions:
   contents: read
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-    outputs:
-      digests: ${{ steps.hash.outputs.digests }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - run: npm ci
-      - run: npm run build
-
-      - name: Generate subject for provenance
-        id: hash
-        run: |
-          set -euo pipefail
-          files=$(git ls-files)
-          echo "digests=$(sha256sum $files | base64 -w0)" >> "${GITHUB_OUTPUT}"
-
-  provenance:
-    needs: [build]
     permissions:
-      actions: read
-      id-token: write
-      contents: write
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+      id-token: write # For signing
+      contents: read # For repo checkout
+      actions: read # For getting workflow run info
+    if: startsWith(github.ref, 'refs/tags/')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_nodejs_slsa3.yml@v2.0.0
     with:
-      base64-subjects: "${{ needs.build.outputs.digests }}"
-      upload-assets: true
+      run-scripts: "ci, build"
+      node-version: "24"
