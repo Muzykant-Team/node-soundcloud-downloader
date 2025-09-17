@@ -79,19 +79,49 @@ export const fromDownloadLink = async (id: number, clientID: string, axiosInstan
 /** @internal */
 export const download = async (url: string, clientID: string, axiosInstance: AxiosInstance, useDownloadLink = true) => {
   const info = await getInfo(url, clientID, axiosInstance)
+  
   if (info.downloadable && useDownloadLink) {
-    // Some tracks have `downloadable` set to true but will return a 404
-    // when using download API route.
     try {
       return await fromDownloadLink(info.id, clientID, axiosInstance)
     } catch (err) {
+      console.log('Download link failed, trying transcoding...')
     }
   }
 
-  return await fromMediaObj(info.media.transcodings[0], clientID, axiosInstance)
+  // Ulepszone wybieranie najlepszego transcoding
+  const availableTranscodings = info.media.transcodings.filter(t => 
+    validatemedia(t) && 
+    t.url && 
+    t.format && 
+    (t.format.protocol === 'hls' || t.format.protocol === 'progressive')
+  )
+
+  if (availableTranscodings.length === 0) {
+    throw new Error('No valid transcoding available for this track')
+  }
+
+  // Preferuj progressive nad HLS (lepiej działa z Discord)
+  const preferredTranscoding = availableTranscodings.find(t => 
+    t.format.protocol === 'progressive'
+  ) || availableTranscodings[0]
+
+  // Spróbuj wszystkich dostępnych transcodings jeśli pierwszy nie działa
+  for (const transcoding of availableTranscodings) {
+    try {
+      return await fromMediaObj(transcoding, clientID, axiosInstance)
+    } catch (err) {
+      console.log(`Transcoding failed: ${transcoding.format.protocol}, trying next...`)
+      if (transcoding === availableTranscodings[availableTranscodings.length - 1]) {
+        throw err // Ostatni transcoding - rzuć błąd
+      }
+    }
+  }
 }
 
 const validatemedia = (media: Transcoding) => {
-  if (!media.url || !media.format) return false
+  if (!media || !media.url || !media.format) return false
+  if (!media.format.protocol) return false
+  // Sprawdź czy protocol jest obsługiwany
+  if (!['hls', 'progressive'].includes(media.format.protocol)) return false
   return true
 }
