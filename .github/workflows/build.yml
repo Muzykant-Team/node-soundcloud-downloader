@@ -24,19 +24,31 @@ jobs:
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '24.x'
 
-      - name: Install and build
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-v1
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
         run: |
-          npm ci --legacy-peer-deps
-          npm run build
+          # Use --legacy-peer-deps to avoid CI errors caused by peer deps / platform bindings
+          npm install --legacy-peer-deps --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
 
       - name: Auto-commit dist
-        if: github.event_name == 'push' # ⬅️ Commituj tylko na push do master, nie w PR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' # ⬅️ Commituj tylko na push do master, nie w PR
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Auto-build Bot"
@@ -47,6 +59,7 @@ jobs:
             echo "Brak zmian w dist"
           else
             git commit -m "🚀 Auto-build dist [skip ci]"
-            git push origin master
+            # Push using the token provided by actions/checkout
+            git push origin HEAD:master
             echo "Dist zaktualizowany!"
           fi
