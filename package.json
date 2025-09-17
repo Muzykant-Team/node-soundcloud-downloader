@@ -28,7 +28,7 @@
   "contributors": ["Muzykant Team"],
   "license": "MIT",
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.28.4",
