@@ -1,14 +1,18 @@
 {
-    "compilerOptions": {
-        "target": "es2022",
-        "outDir": "dist",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "declaration": true,
-        "sourceMap": true,
-        "listFiles": true,
-        "newLine": "LF",
-        "noEmitOnError": true
-    },
-    "exclude": ["node_modules", "dist"]
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2024"],
+    "types": ["node"],
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
+    "newLine": "LF"
+  },
+  "exclude": ["node_modules", "dist"]
 }
