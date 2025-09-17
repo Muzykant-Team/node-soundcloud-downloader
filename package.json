@@ -6,7 +6,7 @@
   "types": "./index.d.ts",
   "scripts": {
     "docs": "typedoc --out docs ./src --excludeInternal && touch ./docs/.nojekyll",
-    "build": "npx tsc src/*.ts --outDir dist --esModuleInterop",
+    "build": "npx tsc -p tsconfig.json"
     "publish-script": "./publish.sh",
     "test": "jest --runInBand"
   },
