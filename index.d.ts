@@ -1,1 +1,1 @@
-export { default, create, SCDL } from './src/index.js'
+export { default, create, SCDL } from './dist/index.js'
