@@ -76,12 +76,6 @@ export const search = async (
         track.duration <= 30500
       ) return false
       
-      // Odrzucaj zbyt krótkie utwory (poniżej 10 sekund)
-      if (
-        typeof track.duration === 'number' &&
-        track.duration < 10000
-      ) return false
-      
       // Sprawdź dostępność regionalną
       if ('region_restricted' in track && track.region_restricted === true) return false
       
