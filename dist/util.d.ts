@@ -6,7 +6,7 @@ export interface PaginatedQuery<T> {
     query_urn: string;
 }
 export declare const resolveURL = "https://api-v2.soundcloud.com/resolve";
-export declare const handleRequestErrs: (err: AxiosError) => AxiosError<unknown, any>;
+export declare const handleRequestErrs: (err: AxiosError) => AxiosError;
 export declare const appendURL: (url: string, ...params: string[]) => string;
 export declare const extractIDFromPersonalizedTrackURL: (url: string) => string;
 export declare const kindMismatchError: (expected: string, received: string) => Error;
