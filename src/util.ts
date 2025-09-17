@@ -11,13 +11,25 @@ export interface PaginatedQuery<T> {
 }
 
 export const resolveURL = 'https://api-v2.soundcloud.com/resolve'
-export const handleRequestErrs = (err: AxiosError) => {
-  if (!err.response) return err
-  if (!err.response.status) return err
+export const handleRequestErrs = (err: AxiosError): Error => {
+  if (!err.response?.status) {
+    return err;
+  }
 
-  if (err.response.status === 401) err.message += ', is your Client ID correct?'
-  if (err.response.status === 404) err.message += ', could not find the song... it may be private - check the URL'
-  return err
+  let descriptiveMessage = err.message;
+
+  switch (err.response.status) {
+    case 401:
+      descriptiveMessage = 'Authentication failed. Is your Client ID correct?';
+      break;
+    case 404:
+      descriptiveMessage = 'Resource not found. It may be private or the URL is incorrect.';
+      break;
+
+  }
+
+
+  return new Error(descriptiveMessage, { cause: err });
 }
 
 export const appendURL = (url: string, ...params: string[]) => {
