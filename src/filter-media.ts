@@ -10,12 +10,9 @@ export interface FilterPredicateObject {
 const filterMedia = (media: Transcoding[], predicateObj: FilterPredicateObject): Transcoding[] => {
   return media.filter(({ format, snipped }) => {
     if (snipped) return false
-    
-    let match = false
-    if (predicateObj.protocol) match = format.protocol === predicateObj.protocol
-    if (predicateObj.format) match = format.mime_type === predicateObj.format
-    
-    return match
+    if (predicateObj.protocol && format.protocol !== predicateObj.protocol) return false
+    if (predicateObj.format && format.mime_type !== predicateObj.format) return false
+    return true
   })
 }
 
