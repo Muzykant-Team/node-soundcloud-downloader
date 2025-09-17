@@ -22,7 +22,7 @@ const FIREBASE_URL_REGEX = /^https?:\/\/soundcloud\.app\.goo\.gl\/.+/;
  * Ogólny regex do wyszukiwania (scrapowania) dowolnego adresu URL w tekście.
  * Używany do znalezienia docelowego linku SoundCloud w odpowiedzi z linku Firebase.
  */
-const GENERIC_URL_SCRAPE_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,500}\.[a-zA-Z0-9()]{1,500}\b([-a-zA-Z0-9()@:%_+.~#?&//\\=]*)/g;
+const GENERIC_URL_SCRAPE_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,500}\.[a-zA-Z0-9()]{1,500}\b([-a-zA-Z0-9()@:%_+.~#?&/\\=;]*)/g;
 
 // --- Funkcje pomocnicze ---
 
