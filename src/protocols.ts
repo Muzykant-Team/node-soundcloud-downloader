@@ -1,15 +1,17 @@
 /**
- * Soundcloud streams tracks using these protocols.
+ * SoundCloud streaming protocols
  */
-enum STREAMING_PROTOCOLS {
+export enum STREAMING_PROTOCOLS {
   HLS = 'hls',
   PROGRESSIVE = 'progressive'
 }
 
-/** @internal */
+/**
+ * @deprecated Use STREAMING_PROTOCOLS enum directly
+ */
 export const _PROTOCOLS = {
   HLS: STREAMING_PROTOCOLS.HLS,
-  PROGRESSIVE: STREAMING_PROTOCOLS.PROGRESSIVE
-}
+  PROGRESSIVE: STREAMING_PROTOCOLS.PROGRESSIVE,
+} as const
 
 export default STREAMING_PROTOCOLS
