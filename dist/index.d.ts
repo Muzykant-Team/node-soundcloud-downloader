@@ -23,6 +23,14 @@ declare enum FORMATS {
   FLAC = "audio/flac",
   WAV = "audio/wav",
   WEBM_OPUS = "audio/webm; codecs=\"opus\"",
+  // WebM container z Opus
+  OGG_VORBIS = "audio/ogg; codecs=\"vorbis\"",
+  // OGG z Vorbis
+  ALAC = "audio/alac",
+  // Apple Lossless
+  AIFF = "audio/aiff",
+  // AIFF PCM
+  M4A = "audio/mp4; codecs=\"mp4a.40.2\"",
 }
 //#endregion
 //#region src/info.d.ts
