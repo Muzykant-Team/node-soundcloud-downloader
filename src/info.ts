@@ -1,233 +1,371 @@
-/* eslint-disable camelcase */
-import { AxiosInstance } from 'axios'
-import { handleRequestErrs, appendURL, extractIDFromPersonalizedTrackURL } from './util'
-
-import STREAMING_PROTOCOLS from './protocols'
-import FORMATS from './formats'
+import type { AxiosInstance } from 'axios'
+import { handleRequestError, appendURL, extractIDFromPersonalizedTrackURL } from './util.js'
+import type { STREAMING_PROTOCOLS } from './protocols.js'
+import type { FORMATS } from './formats.js'
 
 /**
- * A Soundcloud user
+ * A SoundCloud user
  */
 export interface User {
-  kind: string,
-  avatar_url: string,
-  city: string,
-  comments_count: number,
-  country_code: string,
-  created_at: string,
-  description: string,
-  followers_count: number,
-  followings_count: number,
-  first_name: string,
-  full_name: string,
-  groups_count: number,
-  id: number,
-  last_name: string,
-  permalink_url: string,
-  uri: string,
-  username: string
+  readonly kind: string
+  readonly avatar_url: string
+  readonly city: string
+  readonly comments_count: number
+  readonly country_code: string
+  readonly created_at: string
+  readonly description: string
+  readonly followers_count: number
+  readonly followings_count: number
+  readonly first_name: string
+  readonly full_name: string
+  readonly groups_count: number
+  readonly id: number
+  readonly last_name: string
+  readonly permalink_url: string
+  readonly uri: string
+  readonly username: string
 }
 
 /**
  * Details about the track
  */
 export interface TrackInfo {
-  kind: string
-  monetization_model: string,
-  id: number,
-  policy: string,
-  comment_count?: number,
-  full_duration?: number,
-  downloadable?: false,
-  created_at?: string,
-  description?: string,
-  media?: { transcodings: Transcoding[] },
-  title?: string,
-  publisher_metadata?: any,
-  duration?: number,
-  has_downloads_left?: boolean,
-  artwork_url?: string,
-  public?: boolean,
-  streamable?: true,
-  tag_list?: string,
-  genre?: string,
-  reposts_count?: number,
-  label_name?: string,
-  state?: string,
-  last_modified?: string,
-  commentable?: boolean,
-  uri?: string,
-  download_count?: number,
-  likes_count?: number,
-  display_date?: string,
-  user_id?: number,
-  waveform_url?: string,
-  permalink?: string,
-  permalink_url?: string,
-  user?: User,
-  playback_count?: number
+  readonly kind: string
+  readonly monetization_model: string
+  readonly id: number
+  readonly policy: string
+  readonly comment_count?: number
+  readonly full_duration?: number
+  readonly downloadable?: boolean
+  readonly created_at?: string
+  readonly description?: string
+  readonly media?: { transcodings: readonly Transcoding[] }
+  readonly title?: string
+  readonly publisher_metadata?: unknown
+  readonly duration?: number
+  readonly has_downloads_left?: boolean
+  readonly artwork_url?: string
+  readonly public?: boolean
+  readonly streamable?: boolean
+  readonly tag_list?: string
+  readonly genre?: string
+  readonly reposts_count?: number
+  readonly label_name?: string
+  readonly state?: string
+  readonly last_modified?: string
+  readonly commentable?: boolean
+  readonly uri?: string
+  readonly download_count?: number
+  readonly likes_count?: number
+  readonly display_date?: string
+  readonly user_id?: number
+  readonly waveform_url?: string
+  readonly permalink?: string
+  readonly permalink_url?: string
+  readonly user?: User
+  readonly playback_count?: number
 }
 
 /**
  * Details about a Set
  */
 export interface SetInfo {
-  duration: number,
-  permalink_url: string,
-  reposts_count: number,
-  genre: string,
-  permalink: string,
-  purchase_url?: string,
-  description?: string,
-  uri: string,
-  label_name?: string,
-  tag_list: string,
-  set_type: string,
-  public: boolean,
-  track_count: number,
-  user_id: number,
-  last_modified: string,
-  license: string,
-  tracks: TrackInfo[],
-  id: number,
-  release_date?: string,
-  display_date: string,
-  sharing: string,
-  secret_token?: string,
-  created_at: string,
-  likes_count: number,
-  kind: string,
-  purchase_title?: string,
-  managed_by_feeds: boolean,
-  artwork_url?: string,
-  is_album: boolean,
-  user: User,
-  published_at: string,
-  embeddable_by: string
+  readonly duration: number
+  readonly permalink_url: string
+  readonly reposts_count: number
+  readonly genre: string
+  readonly permalink: string
+  readonly purchase_url?: string
+  readonly description?: string
+  readonly uri: string
+  readonly label_name?: string
+  readonly tag_list: string
+  readonly set_type: string
+  readonly public: boolean
+  readonly track_count: number
+  readonly user_id: number
+  readonly last_modified: string
+  readonly license: string
+  readonly tracks: readonly TrackInfo[]
+  readonly id: number
+  readonly release_date?: string
+  readonly display_date: string
+  readonly sharing: string
+  readonly secret_token?: string
+  readonly created_at: string
+  readonly likes_count: number
+  readonly kind: string
+  readonly purchase_title?: string
+  readonly managed_by_feeds: boolean
+  readonly artwork_url?: string
+  readonly is_album: boolean
+  readonly user: User
+  readonly published_at: string
+  readonly embeddable_by: string
 }
 
 /**
- * Represents an audio link to a Soundcloud Track
+ * Represents an audio link to a SoundCloud Track
  */
 export interface Transcoding {
+  readonly url: string
+  readonly preset: string
+  readonly snipped: boolean
+  readonly format: { 
+    readonly protocol: STREAMING_PROTOCOLS
+    readonly mime_type: FORMATS 
+  }
+}
+
+/**
+ * Custom error classes for better error handling
+ */
+export class SoundCloudError extends Error {
+  constructor(
+    message: string,
+    public readonly code?: string,
+    public readonly statusCode?: number
+  ) {
+    super(message)
+    this.name = 'SoundCloudError'
+  }
+}
+
+export class TrackNotFoundError extends SoundCloudError {
+  constructor(url: string) {
+    super(`Track not found: ${url}`, 'TRACK_NOT_FOUND', 404)
+    this.name = 'TrackNotFoundError'
+  }
+}
+
+export class InvalidTrackError extends SoundCloudError {
+  constructor(url: string) {
+    super(`Invalid track URL or missing media: ${url}`, 'INVALID_TRACK')
+    this.name = 'InvalidTrackError'
+  }
+}
+
+export class SetNotFoundError extends SoundCloudError {
+  constructor(url: string) {
+    super(`Set not found: ${url}`, 'SET_NOT_FOUND', 404)
+    this.name = 'SetNotFoundError'
+  }
+}
+
+const API_BASE_URL = 'https://api-v2.soundcloud.com' as const
+const MAX_BATCH_SIZE = 50 as const
+
+/**
+ * Retrieves track information by IDs with improved error handling
+ */
+async function getTrackInfoBase(
+  clientID: string,
+  axiosRef: AxiosInstance,
+  ids: readonly number[],
+  playlistID?: number,
+  playlistSecretToken?: string
+): Promise<readonly TrackInfo[]> {
+  if (ids.length === 0) {
+    return []
+  }
+
+  let url = appendURL(`${API_BASE_URL}/tracks`, 'ids', ids.join(','), 'client_id', clientID)
+  
+  if (playlistID !== undefined && playlistSecretToken) {
+    url = appendURL(url, 'playlistId', String(playlistID), 'playlistSecretToken', playlistSecretToken)
+  }
+
+  try {
+    const { data } = await axiosRef.get<readonly TrackInfo[]>(url)
+    return data
+  } catch (error) {
+    throw handleRequestError(error, `Failed to fetch track info for IDs: ${ids.join(', ')}`)
+  }
+}
+
+/**
+ * Generic function to resolve SoundCloud URLs
+ */
+export async function getInfoBase<T extends TrackInfo | SetInfo>(
   url: string,
-  preset: string,
-  snipped: boolean,
-  format: { protocol: STREAMING_PROTOCOLS, mime_type: FORMATS }
-}
-
-const getTrackInfoBase = async (clientID: string, axiosRef: AxiosInstance, ids: number[], playlistID?: number, playlistSecretToken?: string): Promise<TrackInfo[]> => {
-  let url = appendURL('https://api-v2.soundcloud.com/tracks', 'ids', ids.join(','), 'client_id', clientID)
-  if (playlistID && playlistSecretToken) {
-    url = appendURL(url, 'playlistId', '' + playlistID, 'playlistSecretToken', playlistSecretToken)
+  clientID: string,
+  axiosRef: AxiosInstance
+): Promise<T> {
+  if (!url.trim()) {
+    throw new SoundCloudError('URL cannot be empty')
   }
-  try {
-    const { data } = await axiosRef.get(url)
 
-    return data as TrackInfo[]
-  } catch (err) {
-    throw handleRequestErrs(err)
-  }
-}
-
-/** @internal */
-export const getInfoBase = async <T extends TrackInfo | SetInfo>(url: string, clientID: string, axiosRef: AxiosInstance): Promise<T> => {
   try {
-    const res = await axiosRef.get(appendURL('https://api-v2.soundcloud.com/resolve', 'url', url, 'client_id', clientID), {
-      withCredentials: true
+    const resolveURL = appendURL(`${API_BASE_URL}/resolve`, 'url', url, 'client_id', clientID)
+    const response = await axiosRef.get<T>(resolveURL, {
+      withCredentials: true,
+      timeout: 10000,
     })
 
-    return res.data as T
-  } catch (err) {
-    throw handleRequestErrs(err)
+    return response.data
+  } catch (error) {
+    throw handleRequestError(error, `Failed to resolve URL: ${url}`)
   }
 }
 
-/** @internal */
-const getSetInfoBase = async (url: string, clientID: string, axiosRef: AxiosInstance): Promise<SetInfo> => {
+/**
+ * Retrieves complete set information with all track details
+ */
+async function getSetInfoBase(
+  url: string,
+  clientID: string,
+  axiosRef: AxiosInstance
+): Promise<SetInfo> {
   const setInfo = await getInfoBase<SetInfo>(url, clientID, axiosRef)
-  const temp = [...setInfo.tracks].map(track => track.id)
-  const playlistID = setInfo.id
-  const playlistSecretToken = setInfo.secret_token
+  
+  if (!setInfo.tracks) {
+    throw new SetNotFoundError(url)
+  }
+
+  const originalTrackOrder = setInfo.tracks.map(track => track.id)
   const incompleteTracks = setInfo.tracks.filter(track => !track.title)
+  
   if (incompleteTracks.length === 0) {
     return setInfo
   }
-  const completeTracks = setInfo.tracks.filter(track => track.title)
 
-  const ids = incompleteTracks.map(t => t.id)
-  if (ids.length > 50) {
-    const splitIds = []
-    for (let x = 0; x <= Math.floor(ids.length / 50); x++) {
-      splitIds.push([])
-    }
+  const completeTracks = setInfo.tracks.filter(track => Boolean(track.title))
+  const incompleteTrackIds = incompleteTracks.map(track => track.id)
 
-    for (let x = 0; x < ids.length; x++) {
-      const i = Math.floor(x / 50)
-      splitIds[i].push(ids[x])
-    }
-
-    const promises = splitIds.map(async ids => await getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken))
-    const info = await Promise.all(promises)
-    setInfo.tracks = completeTracks.concat(...info)
-    setInfo.tracks = sortTracks(setInfo.tracks, temp)
-    return setInfo
+  // Process tracks in batches to handle large playlists
+  const trackBatches = []
+  for (let i = 0; i < incompleteTrackIds.length; i += MAX_BATCH_SIZE) {
+    trackBatches.push(incompleteTrackIds.slice(i, i + MAX_BATCH_SIZE))
   }
-  const info = await getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken)
 
-  setInfo.tracks = completeTracks.concat(info)
-  setInfo.tracks = sortTracks(setInfo.tracks, temp)
-  return setInfo
+  const batchPromises = trackBatches.map(batch => 
+    getTrackInfoByID(clientID, axiosRef, batch, setInfo.id, setInfo.secret_token)
+  )
+
+  try {
+    const batchResults = await Promise.all(batchPromises)
+    const allFetchedTracks = batchResults.flat()
+    
+    const allTracks = [...completeTracks, ...allFetchedTracks]
+    const sortedTracks = sortTracks(allTracks, originalTrackOrder)
+    
+    return {
+      ...setInfo,
+      tracks: sortedTracks,
+    }
+  } catch (error) {
+    throw new SoundCloudError(
+      `Failed to fetch complete track information for set: ${url}`,
+      'SET_TRACKS_FETCH_ERROR'
+    )
+  }
 }
 
-/** @internal */
-const sortTracks = (tracks: TrackInfo[], ids: number[]): TrackInfo[] => {
-  for (let i = 0; i < ids.length; i++) {
-    if (tracks[i].id !== ids[i]) {
-      for (let j = 0; j < tracks.length; j++) {
-        if (tracks[j].id === ids[i]) {
-          const temp = tracks[i]
-          tracks[i] = tracks[j]
-          tracks[j] = temp
-        }
+/**
+ * Sorts tracks according to original playlist order
+ */
+function sortTracks(tracks: readonly TrackInfo[], originalOrder: readonly number[]): readonly TrackInfo[] {
+  const trackMap = new Map(tracks.map(track => [track.id, track]))
+  
+  return originalOrder
+    .map(id => trackMap.get(id))
+    .filter((track): track is TrackInfo => track !== undefined)
+}
+
+/**
+ * Main function to get track information with enhanced error handling
+ */
+async function getTrackInfo(
+  url: string,
+  clientID: string,
+  axiosInstance: AxiosInstance
+): Promise<TrackInfo> {
+  if (!url.trim()) {
+    throw new SoundCloudError('URL cannot be empty')
+  }
+
+  let trackData: TrackInfo
+
+  try {
+    if (url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) {
+      const idString = extractIDFromPersonalizedTrackURL(url)
+      if (!idString) {
+        throw new InvalidTrackError(url)
       }
+
+      const id = Number.parseInt(idString, 10)
+      if (Number.isNaN(id)) {
+        throw new InvalidTrackError(url)
+      }
+
+      const tracks = await getTrackInfoByID(clientID, axiosInstance, [id])
+      const track = tracks[0]
+      
+      if (!track) {
+        throw new TrackNotFoundError(url)
+      }
+      
+      trackData = track
+    } else {
+      trackData = await getInfoBase<TrackInfo>(url, clientID, axiosInstance)
     }
+
+    if (!trackData.media?.transcodings?.length) {
+      throw new InvalidTrackError(url)
+    }
+
+    return trackData
+  } catch (error) {
+    if (error instanceof SoundCloudError) {
+      throw error
+    }
+    throw handleRequestError(error, `Failed to get track info for: ${url}`)
+  }
+}
+
+/**
+ * Get set information with enhanced error handling
+ */
+export async function getSetInfo(
+  url: string,
+  clientID: string,
+  axiosInstance: AxiosInstance
+): Promise<SetInfo> {
+  if (!url.trim()) {
+    throw new SoundCloudError('URL cannot be empty')
   }
 
-  return tracks
-}
-
-/** @internal */
-const getInfo = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<TrackInfo> => {
-  let data
-  if (url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) {
-    const idString = extractIDFromPersonalizedTrackURL(url)
-    if (!idString) throw new Error('Could not parse track ID from given URL: ' + url)
-    let id: number
-    try {
-      id = parseInt(idString)
-    } catch (err) {
-      throw new Error('Could not parse track ID from given URL: ' + url)
+  try {
+    const setData = await getSetInfoBase(url, clientID, axiosInstance)
+    
+    if (!setData.tracks?.length) {
+      throw new SetNotFoundError(url)
     }
-
-    data = (await getTrackInfoByID(clientID, axiosInstance, [id]))[0]
-    if (!data) throw new Error('Could not find track with ID: ' + id)
-  } else {
-    data = await getInfoBase<TrackInfo>(url, clientID, axiosInstance)
+    
+    return setData
+  } catch (error) {
+    if (error instanceof SoundCloudError) {
+      throw error
+    }
+    throw handleRequestError(error, `Failed to get set info for: ${url}`)
   }
-  if (!data.media) throw new Error('The given URL does not link to a Soundcloud track')
-  return data
 }
 
-/** @internal */
-export const getSetInfo = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<SetInfo> => {
-  const data = await getSetInfoBase(url, clientID, axiosInstance)
-  if (!data.tracks) throw new Error('The given URL does not link to a Soundcloud set')
-  return data
+/**
+ * Get track information by IDs
+ */
+export async function getTrackInfoByID(
+  clientID: string,
+  axiosInstance: AxiosInstance,
+  ids: readonly number[],
+  playlistID?: number,
+  playlistSecretToken?: string
+): Promise<readonly TrackInfo[]> {
+  if (ids.length === 0) {
+    return []
+  }
+
+  return getTrackInfoBase(clientID, axiosInstance, ids, playlistID, playlistSecretToken)
 }
 
-/** @intenral */
-export const getTrackInfoByID = async (clientID: string, axiosInstance: AxiosInstance, ids: number[], playlistID?: number, playlistSecretToken?: string) => {
-  return await getTrackInfoBase(clientID, axiosInstance, ids, playlistID, playlistSecretToken)
-}
-export default getInfo
+export default getTrackInfo
