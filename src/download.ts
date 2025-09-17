@@ -1,4 +1,5 @@
 import type { AxiosInstance } from 'axios'
+import type { Readable } from 'node:stream'
 import m3u8stream from 'm3u8stream'
 import { handleRequestErrs, appendURL } from './util.js'
 import getInfo, { type Transcoding } from './info.js'
