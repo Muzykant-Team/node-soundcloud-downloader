@@ -1,14 +1,15 @@
 {
-    "compilerOptions": {
-        "target": "es2022",
-        "outDir": "dist",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "declaration": true,
-        "sourceMap": true,
-        "listFiles": true,
-        "newLine": "LF",
-        "noEmitOnError": true
-    },
-    "exclude": ["node_modules", "dist"]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"]
 }
