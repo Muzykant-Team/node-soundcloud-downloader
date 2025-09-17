@@ -22,6 +22,90 @@ export type SoundcloudResource = 'tracks' | 'users' | 'albums' | 'playlists'
 
 const validResourceTypes = ['tracks', 'users', 'albums', 'playlists', 'all']
 
+// Funkcja do normalizacji stringów (usuwa znaki specjalne, akcenty, małe litery)
+const normalizeString = (str: string): string => {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // usuń akcenty
+    .replace(/[^\w\s]/g, ' ') // zamień znaki specjalne na spacje
+    .replace(/\s+/g, ' ') // zamień wielokrotne spacje na jedną
+    .trim()
+}
+
+// Funkcja do obliczania podobieństwa między tytułami
+const calculateSimilarity = (query: string, title: string): number => {
+  const normalizedQuery = normalizeString(query)
+  const normalizedTitle = normalizeString(title)
+  
+  // Jeśli tytuły są identyczne po normalizacji - maksymalny wynik
+  if (normalizedQuery === normalizedTitle) {
+    return 1000
+  }
+  
+  // Sprawdź czy query jest dokładnie zawarte w tytule
+  if (normalizedTitle.includes(normalizedQuery)) {
+    return 800
+  }
+  
+  // Sprawdź czy wszystkie słowa z query są w tytule
+  const queryWords = normalizedQuery.split(' ').filter(word => word.length > 0)
+  const titleWords = normalizedTitle.split(' ').filter(word => word.length > 0)
+  
+  let matchingWords = 0
+  let exactMatches = 0
+  
+  queryWords.forEach(queryWord => {
+    // Sprawdź dokładne dopasowanie
+    if (titleWords.some(titleWord => titleWord === queryWord)) {
+      exactMatches++
+      matchingWords++
+    }
+    // Sprawdź częściowe dopasowanie (słowo zawiera się w innym)
+    else if (titleWords.some(titleWord => 
+      titleWord.includes(queryWord) || queryWord.includes(titleWord)
+    )) {
+      matchingWords += 0.5
+    }
+  })
+  
+  // Kara za dodatkowe słowa w tytule (preferuj krótsze, dokładniejsze tytuły)
+  const extraWords = Math.max(0, titleWords.length - queryWords.length)
+  const lengthPenalty = extraWords * 10
+  
+  // Bonus za dokładne dopasowania
+  const exactMatchBonus = exactMatches * 100
+  
+  // Bazowy wynik na podstawie % dopasowanych słów
+  const baseScore = (matchingWords / queryWords.length) * 500
+  
+  return Math.max(0, baseScore + exactMatchBonus - lengthPenalty)
+}
+
+// Funkcja do sprawdzania czy to remix/cover/live version
+const isOriginalVersion = (title: string, query: string): boolean => {
+  const normalizedTitle = normalizeString(title)
+  
+  const modifierKeywords = [
+    'remix', 'cover', 'live', 'acoustic', 'instrumental', 'karaoke',
+    'extended', 'radio edit', 'club mix', 'dub', 'version', 'edit',
+    'remaster', 'rework', 'bootleg', 'mashup', 'flip'
+  ]
+  
+  // Sprawdź czy tytuł zawiera słowa wskazujące na modyfikację
+  const hasModifiers = modifierKeywords.some(keyword => 
+    normalizedTitle.includes(keyword)
+  )
+  
+  // Sprawdź czy query zawiera te słowa (jeśli tak, to użytkownik ich szuka)
+  const queryWantsModified = modifierKeywords.some(keyword => 
+    normalizeString(query).includes(keyword)
+  )
+  
+  // Jeśli query nie zawiera modyfikatorów, ale tytuł tak - to prawdopodobnie nie oryginał
+  return !hasModifiers || queryWantsModified
+}
+
 /** @internal */
 export const search = async (
   options: SearchOptions,
@@ -29,7 +113,7 @@ export const search = async (
   clientID: string
 ): Promise<SearchResponseAll> => {
   let url = ''
-  if (!options.limit) options.limit = 10
+  if (!options.limit) options.limit = 20 // Zwiększ limit żeby mieć więcej opcji
   if (!options.offset) options.offset = 0
   if (!options.resourceType) options.resourceType = 'tracks'
   
@@ -60,13 +144,11 @@ export const search = async (
 
   const { data } = await axiosInstance.get(url)
   
-  // Ulepszone filtrowanie dla tracks
   if (options.resourceType === 'tracks' && Array.isArray(data.collection)) {
+    // PRZYWRÓCONE SPRAWDZANIE SEKUND I INNE FILTRY
     data.collection = data.collection.filter((track: any) => {
       // Podstawowe sprawdzenia
       if (!track || typeof track !== 'object') return false
-      
-      // Sprawdź czy ma wymagane pola
       if (!track.permalink_url || !track.title) return false
       
       // Odrzucaj sample o długości w pobliżu 30s (29.5–30.5 sekundy)
@@ -106,15 +188,29 @@ export const search = async (
       return true
     })
     
-    // Sortuj wyniki - preferuj pełne utwory (dłuższe) i popularne
-    data.collection.sort((a: any, b: any) => {
-      // Preferuj dłuższe utwory (prawdopodobnie pełne wersje)
-      const durationScore = (b.duration || 0) - (a.duration || 0)
-      // Preferuj popularne (więcej polubień)
-      const likesScore = (b.likes_count || 0) - (a.likes_count || 0)
-      // Kombinuj oba czynniki
-      return (durationScore * 0.3) + (likesScore * 0.7)
-    })
+    // Sortuj wyniki na podstawie dokładności dopasowania do query
+    if (options.query) {
+      data.collection.sort((a: any, b: any) => {
+        const similarityA = calculateSimilarity(options.query!, a.title)
+        const similarityB = calculateSimilarity(options.query!, b.title)
+        
+        // Bonus za oryginalną wersję
+        const originalBonusA = isOriginalVersion(a.title, options.query!) ? 50 : 0
+        const originalBonusB = isOriginalVersion(b.title, options.query!) ? 50 : 0
+        
+        // Bonus za popularność (ale mniejszy niż dokładność)
+        const popularityA = (a.likes_count || 0) / 1000
+        const popularityB = (b.likes_count || 0) / 1000
+        
+        const scoreA = similarityA + originalBonusA + popularityA
+        const scoreB = similarityB + originalBonusB + popularityB
+        
+        return scoreB - scoreA
+      })
+    }
+    
+    // Ogranicz do oryginalnego limitu (ale po filtrowaniu i sortowaniu)
+    data.collection = data.collection.slice(0, Math.min(options.limit, 10))
   }
   
   return data as SearchResponseAll
@@ -146,10 +242,17 @@ export const related = async <T extends TrackInfo>(
       if (!track || typeof track !== 'object') return false
       if (!track.permalink_url || !track.title) return false
       
+      // Odrzucaj sample ~30s
       if (
         typeof track.duration === 'number' &&
         track.duration >= 29500 &&
         track.duration <= 30500
+      ) return false
+      
+      // Odrzucaj zbyt krótkie
+      if (
+        typeof track.duration === 'number' &&
+        track.duration < 10000
       ) return false
       
       if (track.streamable !== true) return false
