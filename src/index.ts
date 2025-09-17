@@ -13,6 +13,7 @@ import * as fs from 'node:fs'
 import { type PaginatedQuery } from './util.js'
 import { type GetLikesOptions, getLikes, type Like } from './likes.js'
 import { getUser } from './user.js'
+import { fileURLToPath } from 'node:url'
 
 interface ClientIDData {
   clientID: string
@@ -170,7 +171,8 @@ export class SCDL {
     if (this.#clientID) return this.#clientID
 
     if (this.saveClientID) {
-      const filename = path.resolve(import.meta.dirname, this.#filePath ?? '../client_id.json')
+      const __dirname = path.dirname(fileURLToPath(import.meta.url))
+      const filename = path.resolve(__dirname, this.#filePath ?? '../client_id.json')
       const cached = await this.#getClientIDFromFile(filename)
       
       if (cached) {
