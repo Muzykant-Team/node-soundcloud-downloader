@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** @internal */
-var filterMedia = function (media, predicateObj) {
-    return media.filter(function (_a) {
-        var format = _a.format, snipped = _a.snipped;
-        var match = false;
+const filterMedia = (media, predicateObj) => {
+    return media.filter(({ format, snipped }) => {
+        let match = false;
         if (predicateObj.protocol)
             match = format.protocol === predicateObj.protocol;
         if (predicateObj.format)
@@ -16,3 +15,4 @@ var filterMedia = function (media, predicateObj) {
     });
 };
 exports.default = filterMedia;
+//# sourceMappingURL=filter-media.js.map
