@@ -9,7 +9,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "esModuleInterop": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
     "newLine": "LF"
