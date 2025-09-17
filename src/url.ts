@@ -16,7 +16,13 @@ const SOUNDCLOUD_URL_REGEX = /^https?:\/\/(m\.)?soundcloud\.com\/.+/;
 /**
  * Regex dopasowujący adresy URL skracacza linków Firebase używanego przez SoundCloud.
  */
-const FIREBASE_URL_REGEX = /^https?:\/\/soundcloud\.app\.goo\.gl\/.+/;
+/**
+ * Regex dopasowujący adresy URL skracaczy linków używanych przez SoundCloud (Firebase i on.soundcloud).
+ * Obsługuje np:
+ * - https://soundcloud.app.goo.gl/...
+ * - https://on.soundcloud.com/...
+ */
+const FIREBASE_URL_REGEX = /^https?:\/\/(?:soundcloud\.app\.goo\.gl|on\.soundcloud\.com)\/.+/;
 
 /**
  * Ogólny regex do wyszukiwania (scrapowania) dowolnego adresu URL w tekście.
@@ -91,6 +97,11 @@ export const stripMobilePrefix = (url: string): string => {
  * Sprawdza, czy URL jest skróconym linkiem Firebase od SoundCloud.
  * @param url - Adres URL do sprawdzenia.
  * @returns `true`, jeśli to link Firebase, w przeciwnym razie `false`.
+ */
+/**
+ * Sprawdza, czy URL jest skróconym linkiem SoundCloud (np. Firebase shortener lub on.soundcloud.com).
+ * @param url - Adres URL do sprawdzenia.
+ * @returns `true`, jeśli to skrócony link SoundCloud, w przeciwnym razie `false`.
  */
 export const isFirebaseURL = (url: string): boolean => {
   return FIREBASE_URL_REGEX.test(url);
