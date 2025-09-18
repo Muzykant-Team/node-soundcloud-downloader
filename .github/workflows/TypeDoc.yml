@@ -26,7 +26,7 @@ jobs:
         run: |
           npx typedoc \
           --out docs \
-          --entryPoints '**/*.{ts,tsx,js,jsx}' \
+          --entryPoints . \
           --entryPointStrategy expand \
           --exclude '**/dist/**' \
           --exclude '**/docs/**' \
