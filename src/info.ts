@@ -226,7 +226,7 @@ export const getSetInfo = async (url: string, clientID: string, axiosInstance: A
   return data
 }
 
-/** @intenral */
+/** @internal */
 export const getTrackInfoByID = async (clientID: string, axiosInstance: AxiosInstance, ids: number[], playlistID?: number, playlistSecretToken?: string) => {
   return await getTrackInfoBase(clientID, axiosInstance, ids, playlistID, playlistSecretToken)
 }
