@@ -30,6 +30,7 @@ jobs:
           --entryPointStrategy expand \
           --exclude '**/dist/**' \
           --exclude '**/docs/**' \
+          --exclude '**/node_modules/**'
           --exclude '**/.github/**'
 
       - name: Commit and push docs
