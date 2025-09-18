@@ -1,4 +1,6 @@
 name: Generate TypeDoc
+permissions:
+  contents: write
 
 on:
   push:
