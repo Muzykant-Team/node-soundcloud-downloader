@@ -1,6 +1,6 @@
 {
   "name": "muzykant-soundcloud-downloader",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Download Soundcloud audio with Node.js",
   "main": "index.js",
   "types": "./index.d.ts",
