@@ -1,5 +1,5 @@
 name: Generate TypeDoc
-permissions:
+permissions: 
   contents: write
 
 on:
@@ -25,16 +25,7 @@ jobs:
         run: npm install
 
       - name: Generate documentation with TypeDoc
-        run: |
-          npx typedoc \
-          --out docs \
-          --entryPoints . \
-          --entryPointStrategy expand \
-          --exclude '**/dist/**' \
-          --exclude '**/docs/**' \
-          --ignoreCompilerErrors
-          --exclude '**/node_modules/**'
-          --exclude '**/.github/**'
+        run: npx typedoc --options typedoc.json
 
       - name: Commit and push docs
         run: |
