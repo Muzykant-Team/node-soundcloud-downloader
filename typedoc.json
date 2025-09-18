@@ -1,0 +1,13 @@
+{
+  "entryPoints": ["."],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "exclude": [
+    "**/dist/**",
+    "**/docs/**",
+    "**/node_modules/**",
+    "**/.github/**"
+  ],
+  "tsconfig": "tsconfig.json",
+  "skipErrorChecking": true
+}
