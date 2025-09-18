@@ -15,6 +15,5 @@
   "readme": "./README.md",
   "includeVersion": true,
   "sort": ["source-order"],
-  "theme": "default",
-  "media": ["./example"]
+  "theme": "default"
 }
