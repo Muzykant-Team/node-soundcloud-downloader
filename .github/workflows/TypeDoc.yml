@@ -25,14 +25,12 @@ jobs:
       - name: Generate documentation with TypeDoc
         run: |
           npx typedoc \
-            --out docs \
-            --entryPoints '**/*.ts' \
-            --entryPoints '**/*.tsx' \
-            --entryPoints '**/*.js' \
-            --entryPoints '**/*.jsx' \
-            --exclude '**/dist/**' \
-            --exclude '**/docs/**' \
-            --exclude '**/.github/**'
+          --out docs \
+          --entryPoints . \
+          --exclude '**/dist/**' \
+          --exclude '**/docs/**' \
+          --exclude '**/.github/**'
+
 
       - name: Commit and push docs
         run: |
