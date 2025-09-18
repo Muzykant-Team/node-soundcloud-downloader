@@ -26,11 +26,11 @@ jobs:
         run: |
           npx typedoc \
           --out docs \
-          --entryPoints . \
+          --entryPoints '**/*.{ts,tsx,js,jsx}' \
+          --entryPointStrategy expand \
           --exclude '**/dist/**' \
           --exclude '**/docs/**' \
           --exclude '**/.github/**'
-
 
       - name: Commit and push docs
         run: |
