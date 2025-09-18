@@ -30,9 +30,8 @@ jobs:
 
       - name: Generate documentation with TypeDoc
         run: |
-          npx typedoc
-          touch ./docs/.nojekyll
-
+          npm run docs
+          
       - name: Commit and push docs
         run: |
           git config user.name "github-actions[bot]"
