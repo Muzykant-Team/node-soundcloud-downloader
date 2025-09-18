@@ -1,14 +1,19 @@
 {
-  "entryPoints": ["./"],                
+  "name": "muzykant-soundcloud-downloader",
+  "entryPoints": ["./src"],
   "entryPointStrategy": "expand",
-  "out": "./docs",                      
+  "out": "./docs",
   "exclude": [
     "./dist/**",
     "./docs/**",
     "./node_modules/**",
-    "./.github/**"
+    "./.github/**",
+    "./tests/**"
   ],
-  "tsconfig": "./tsconfig.json",        
+  "tsconfig": "./tsconfig.json",
   "skipErrorChecking": true,
-  "readme": "./README.md"
+  "readme": "./README.md",
+  "includeVersion": true,
+  "sort": ["source-order"],
+  "theme": "default"
 }
