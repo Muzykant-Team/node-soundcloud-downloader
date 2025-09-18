@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "docs": "typedoc --out docs ./src --excludeInternal && touch ./docs/.nojekyll",
+    "docs": "typedoc && touch ./docs/.nojekyll",
     "build": "tsdown src/index.ts --format esm,cjs --dts --minify --clean",
     "publish-script": "./publish.sh",
     "test": "jest --runInBand"
