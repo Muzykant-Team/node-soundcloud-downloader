@@ -60,7 +60,7 @@
     "publint": "^0.3.13",
     "unplugin-unused": "^0.5.3",
     "pkg-types": "^2.3.0",
-    "vitest": "^2.2.4",
+    "vitest": "^2.0.0",
     "typescript": "^5.9.2"
   }
 }
