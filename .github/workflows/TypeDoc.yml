@@ -1,20 +1,31 @@
-name: Generate TypeDoc
-permissions: 
-  contents: write
+name: Generate and Deploy TypeDoc to Pages
 
 on:
   push:
-    branches:
-      - master
+    branches: ["master"]
   workflow_dispatch:
 
-jobs:
-  build-docs:
-    runs-on: ubuntu-latest
+permissions:
+  contents: write    # potrzebne do pushowania commita
+  pages: write
+  id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -23,19 +34,47 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --prefer-offline --no-audit --progress=false || npm install
 
-      - name: Create docs directory
+      - name: Build project (if present)
+        run: npm run build --if-present
+
+      - name: Ensure docs directory exists
         run: mkdir -p docs
 
-      - name: Generate documentation with TypeDoc
+      - name: Generate TypeDoc
         run: |
-          npm run docs
-          
-      - name: Commit and push docs
+          if npm run | grep -q "docs"; then
+            npm run docs --if-present
+          else
+            npx typedoc --options typedoc.json --out docs
+          fi
+
+      - name: Show docs contents (debug)
+        run: ls -la docs || true
+
+      - name: Commit and push generated docs (if any)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs
-          git commit -m "Update generated docs [skip ci]" || echo "No changes to commit"
-          git push
+          # jeśli nie ma zmian, wyjdź bez błędu
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update generated docs [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          # zmień tę ścieżkę jeśli chcesz publikować inny folder (np. './public' lub './dist')
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
