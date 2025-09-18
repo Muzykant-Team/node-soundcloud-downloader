@@ -1,14 +1,14 @@
 {
-  "entryPoints": ["."],
+  "entryPoints": ["./"],                
   "entryPointStrategy": "expand",
-  "out": "docs",
+  "out": "./docs",                      
   "exclude": [
-    "**/dist/**",
-    "**/docs/**",
-    "**/node_modules/**",
-    "**/.github/**"
+    "./dist/**",
+    "./docs/**",
+    "./node_modules/**",
+    "./.github/**"
   ],
-  "tsconfig": "tsconfig.json",
+  "tsconfig": "./tsconfig.json",        
   "skipErrorChecking": true,
-  "readme": "README.md"
+  "readme": "./README.md"
 }
