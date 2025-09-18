@@ -29,6 +29,7 @@ export const getProgressiveStream = async (mediaUrl: string, axiosInstance: Axio
 
 export const getHLSStream = (mediaUrl: string) => m3u8stream(mediaUrl)
 
+/** @internal */
 type fromURLFunctionBase = (url: string, clientID: string,
   getMediaURLFunction: (url: string, clientID: string, axiosInstance: AxiosInstance) => Promise<string>,
   getProgressiveStreamFunction: (mediaUrl: string, axiosInstance: AxiosInstance) => Promise<any>,
