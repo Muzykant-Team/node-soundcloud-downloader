@@ -38,7 +38,7 @@ const GENERIC_URL_SCRAPE_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,500
  * @param testFirebase - Czy uwzględnić sprawdzanie linków Firebase (domyślnie true).
  * @returns `true`, jeśli adres URL jest prawidłowy, w przeciwnym razie `false`.
  */
-export const isURL = (url: string, testFirebase: boolean = true): boolean => {
+export const isURL = (url: string, testFirebase: boolean = true, stripMobilePrefix?: boolean): boolean => {
   if (typeof url !== 'string') return false;
   // Sprawdza, czy pasuje do standardowego/mobilnego URL-a LUB (jeśli włączone) do URL-a Firebase.
   return SOUNDCLOUD_URL_REGEX.test(url) || (testFirebase && FIREBASE_URL_REGEX.test(url));
