@@ -177,7 +177,54 @@ export class SCDL {
     this.STREAMING_PROTOCOLS = _PROTOCOLS
     this.FORMATS = _FORMATS
   }
+  /**
+   * Parsuje nagłówek retry-after który może być w sekundach lub jako data HTTP
+   * @internal
+   */
+  private _parseRetryAfter(retryAfterHeader: string | number | undefined): number {
+    if (!retryAfterHeader) {
+      return this._retryDelay
+    }
 
+    const retryAfterStr = String(retryAfterHeader).trim()
+  
+    // Sprawdź czy to liczba (sekundy)
+    if (/^\d+$/.test(retryAfterStr)) {
+      const seconds = parseInt(retryAfterStr, 10)
+      return Math.max(seconds * 1000, this._retryDelay) // Konwertuj na milisekundy
+    }
+
+    // Sprawdź czy to data HTTP (RFC 7231)
+    try {
+      const retryDate = new Date(retryAfterStr)
+    
+      // Sprawdź czy data jest poprawna
+      if (isNaN(retryDate.getTime())) {
+        console.warn(`Nieprawidłowy format retry-after: ${retryAfterStr}`)
+        return this._retryDelay
+      }
+
+      const now = new Date()
+      const delayMs = retryDate.getTime() - now.getTime()
+    
+      // Jeśli data jest w przeszłości lub za daleko w przyszłości (>1h), użyj domyślnego delay
+      if (delayMs <= 0) {
+        console.warn(`Retry-after data w przeszłości: ${retryAfterStr}`)
+        return this._retryDelay
+      }
+    
+      const oneHourMs = 60 * 60 * 1000
+      if (delayMs > oneHourMs) {
+        console.warn(`Retry-after data zbyt daleko w przyszłości: ${retryAfterStr}, używam 1 godziny`)
+        return oneHourMs
+      }
+  
+      return delayMs
+    } catch (error) {
+      console.warn(`Błąd parsowania retry-after jako data: ${retryAfterStr}`, error)
+      return this._retryDelay
+    }
+  }
   /**
    * Konfiguruje interceptory dla axios
    * @internal
@@ -192,9 +239,7 @@ export class SCDL {
         if (error.response) {
           const status = error.response.status
           if (status === 429) {
-            const retryAfter = error.response.headers['retry-after'] 
-              ? parseInt(error.response.headers['retry-after'] as string) * 1000 
-              : this._retryDelay
+            const retryAfter = this._parseRetryAfter(error.response.headers['retry-after'])
             throw new SCDLError(
               'Przekroczono limit zapytań. Spróbuj ponownie później.',
               SCDLErrorType.RATE_LIMITED,
@@ -209,9 +254,30 @@ export class SCDL {
               error,
               error.config?.url
             )
+          } else if (status >= 500 && status < 600) {
+            throw new SCDLError(
+              `Błąd serwera (${status}): ${error.response.statusText}`,
+              SCDLErrorType.NETWORK_ERROR,
+              error,
+              error.config?.url
+            )
+          } else if (status === 403) {
+            throw new SCDLError(
+              'Brak dostępu do zasobu. Możliwe że zasób jest prywatny lub Client ID jest nieprawidłowy.',
+              SCDLErrorType.CLIENT_ID_ERROR,
+              error,
+              error.config?.url
+            )
+          } else if (status === 401) {
+            throw new SCDLError(
+              'Nieautoryzowany dostęp. Client ID może być nieprawidłowy.',
+              SCDLErrorType.CLIENT_ID_ERROR,
+              error,
+              error.config?.url
+            )
           }
         }
-        
+      
         if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
           throw new SCDLError(
             'Przekroczono limit czasu żądania.',
@@ -220,7 +286,16 @@ export class SCDL {
             error.config?.url
           )
         }
-        
+      
+        if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+          throw new SCDLError(
+            'Nie można połączyć się z serwerem SoundCloud.',
+            SCDLErrorType.NETWORK_ERROR,
+            error,
+            error.config?.url
+          )
+        }
+      
         throw new SCDLError(
           `Błąd sieci: ${error.message}`,
           SCDLErrorType.NETWORK_ERROR,
