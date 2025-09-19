@@ -1080,4 +1080,4 @@ export { create, SCDLErrorType }
 scdl.STREAMING_PROTOCOLS = _PROTOCOLS
 scdl.FORMATS = _FORMATS
 
-export default scdl
+export default scdl;
