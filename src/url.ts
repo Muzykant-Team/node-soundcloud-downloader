@@ -65,11 +65,11 @@ function decodeEscapes(input: string): string {
   );
   // podstawowe encje HTML
   return unicodeDecoded
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&#x27;|&apos;/g, "'")
-    .replace(/&quot;/g, '"');
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&');
 }
 
 function extractUrlsFromHtml(html: string): string[] {
