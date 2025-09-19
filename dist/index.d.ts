@@ -117,15 +117,11 @@ interface FilterPredicateObject {
 }
 //#endregion
 //#region src/util.d.ts
-/**
- * Generic shape for paginated responses from SoundCloud API v2.
- */
 interface PaginatedQuery<T> {
   collection: T[];
-  /** total_results is omitted by the API when `limit` param is supplied */
   total_results?: number;
-  next_href?: string | null;
-  query_urn?: string;
+  next_href: string;
+  query_urn: string;
 }
 //#endregion
 //#region src/search.d.ts
