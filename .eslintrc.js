@@ -1,6 +1,6 @@
 module.exports = {
   env: {
-    es2022: true,
+    esnext: true,
     node: true,
     'jest/globals': true
   },
