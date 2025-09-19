@@ -98,43 +98,6 @@ interface TrackInfo {
   playback_count?: number;
 }
 /**
- * Details about a Set
- */
-interface SetInfo {
-  duration: number;
-  permalink_url: string;
-  reposts_count: number;
-  genre: string;
-  permalink: string;
-  purchase_url?: string;
-  description?: string;
-  uri: string;
-  label_name?: string;
-  tag_list: string;
-  set_type: string;
-  public: boolean;
-  track_count: number;
-  user_id: number;
-  last_modified: string;
-  license: string;
-  tracks: TrackInfo[];
-  id: number;
-  release_date?: string;
-  display_date: string;
-  sharing: string;
-  secret_token?: string;
-  created_at: string;
-  likes_count: number;
-  kind: string;
-  purchase_title?: string;
-  managed_by_feeds: boolean;
-  artwork_url?: string;
-  is_album: boolean;
-  user: User;
-  published_at: string;
-  embeddable_by: string;
-}
-/**
  * Represents an audio link to a Soundcloud Track
  */
 interface Transcoding {
@@ -147,6 +110,12 @@ interface Transcoding {
   };
 }
 //#endregion
+//#region src/filter-media.d.ts
+interface FilterPredicateObject {
+  protocol?: STREAMING_PROTOCOLS;
+  format?: FORMATS;
+}
+//#endregion
 //#region src/util.d.ts
 interface PaginatedQuery<T> {
   collection: T[];
@@ -156,9 +125,6 @@ interface PaginatedQuery<T> {
 }
 //#endregion
 //#region src/search.d.ts
-interface RelatedResponse<T> extends PaginatedQuery<T> {
-  variant: string;
-}
 interface SearchOptions {
   limit?: number;
   offset?: number;
@@ -166,14 +132,7 @@ interface SearchOptions {
   query?: string;
   nextHref?: string;
 }
-type SearchResponseAll = PaginatedQuery<User | SetInfo | TrackInfo>;
 type SoundcloudResource = 'tracks' | 'users' | 'albums' | 'playlists';
-//#endregion
-//#region src/filter-media.d.ts
-interface FilterPredicateObject {
-  protocol?: STREAMING_PROTOCOLS;
-  format?: FORMATS;
-}
 //#endregion
 //#region src/likes.d.ts
 interface Like {
@@ -190,6 +149,26 @@ interface GetLikesOptions {
 }
 //#endregion
 //#region src/index.d.ts
+declare enum SCDLErrorType {
+  NETWORK_ERROR = "NETWORK_ERROR",
+  INVALID_URL = "INVALID_URL",
+  CLIENT_ID_ERROR = "CLIENT_ID_ERROR",
+  TRACK_NOT_FOUND = "TRACK_NOT_FOUND",
+  REGION_RESTRICTED = "REGION_RESTRICTED",
+  NOT_STREAMABLE = "NOT_STREAMABLE",
+  SAMPLE_TRACK = "SAMPLE_TRACK",
+  FORMAT_NOT_FOUND = "FORMAT_NOT_FOUND",
+  FILE_SYSTEM_ERROR = "FILE_SYSTEM_ERROR",
+  PARSING_ERROR = "PARSING_ERROR",
+  RATE_LIMITED = "RATE_LIMITED",
+}
+declare class SCDLError extends Error {
+  readonly type: SCDLErrorType;
+  readonly originalError?: Error;
+  readonly url?: string;
+  readonly retryAfter?: number;
+  constructor(message: string, type: SCDLErrorType, originalError?: Error, url?: string, retryAfter?: number);
+}
 interface SCDLOptions {
   clientID?: string;
   saveClientID?: boolean;
@@ -197,6 +176,10 @@ interface SCDLOptions {
   axiosInstance?: AxiosInstance;
   stripMobilePrefix?: boolean;
   convertFirebaseLinks?: boolean;
+  maxRetries?: number;
+  retryDelay?: number;
+  timeout?: number;
+  validateUrls?: boolean;
 }
 declare class SCDL {
   STREAMING_PROTOCOLS: {
@@ -207,18 +190,47 @@ declare class SCDL {
   };
   private _clientID?;
   private _filePath?;
+  private _maxRetries;
+  private _retryDelay;
+  private _timeout;
+  private _validateUrls;
   axios: AxiosInstance;
   saveClientID: boolean;
   stripMobilePrefix: boolean;
   convertFirebaseLinks: boolean;
   constructor(options?: SCDLOptions);
   /**
+   * Parsuje nagłówek retry-after który może być w sekundach lub jako data HTTP
+   * @internal
+   */
+  private _parseRetryAfter;
+  /**
+   * Konfiguruje interceptory dla axios
+   * @internal
+   */
+  private _setupAxiosInterceptors;
+  /**
+   * Wykonuje operację z retry logic
+   * @internal
+   */
+  private _withRetry;
+  /**
+   * Pomocnicza funkcja delay
+   * @internal
+   */
+  private _delay;
+  /**
+   * Waliduje URL z lepszą obsługą błędów
+   * @internal
+   */
+  private _validateUrl;
+  /**
    * Returns a media Transcoding that matches the given predicate object
    * @param media - The Transcodings to filter
    * @param predicateObj - The desired Transcoding object to match
    * @returns An array of Transcodings that match the predicate object
    */
-  filterMedia(media: Transcoding[], predicateObj: FilterPredicateObject): Transcoding[];
+  filterMedia(media: Transcoding[], predicateObj: FilterPredicateObject): any;
   /**
    * Get the audio of a given track. It returns the first format found.
    *
@@ -238,32 +250,32 @@ declare class SCDL {
    * @param url - URL of the Soundcloud track
    * @returns Info about the track
   */
-  getInfo(url: string): Promise<TrackInfo>;
+  getInfo(url: string): Promise<any>;
   /**
    * Returns info about the given track(s) specified by ID.
    * @param ids - The ID(s) of the tracks
    * @returns Info about the track
    */
-  getTrackInfoByID(ids: number[], playlistID?: number, playlistSecretToken?: string): Promise<TrackInfo[]>;
+  getTrackInfoByID(ids: number[], playlistID?: number, playlistSecretToken?: string): Promise<any>;
   /**
    * Returns info about the given set
    * @param url - URL of the Soundcloud set
    * @returns Info about the set
    */
-  getSetInfo(url: string): Promise<SetInfo>;
+  getSetInfo(url: string): Promise<any>;
   /**
    * Searches for tracks/playlists for the given query
    * @param options - The search option
    * @returns SearchResponse
    */
-  search(options: SearchOptions): Promise<SearchResponseAll>;
+  search(options: SearchOptions): Promise<any>;
   /**
    * Finds related tracks to the given track specified by ID
    * @param id - The ID of the track
    * @param limit - The number of results to return
    * @param offset - Used for pagination, set to 0 if you will not use this feature.
    */
-  related(id: number, limit: number, offset?: number): Promise<RelatedResponse<TrackInfo>>;
+  related(id: number, limit: number, offset?: number): Promise<any>;
   /**
    * Returns the audio streams and titles of the tracks in the given playlist.
    * @param url - The url of the playlist
@@ -289,22 +301,22 @@ declare class SCDL {
    * Returns whether or not the given URL is a valid Soundcloud URL
    * @param url - URL of the Soundcloud track
   */
-  isValidUrl(url: string): boolean;
+  isValidUrl(url: string): any;
   /**
    * Returns whether or not the given URL is a valid playlist SoundCloud URL
    * @param url - The URL to check
    */
-  isPlaylistURL(url: string): boolean;
+  isPlaylistURL(url: string): any;
   /**
    * Returns true if the given URL is a personalized track URL. (of the form https://soundcloud.com/discover/sets/personalized-tracks::user-sdlkfjsldfljs:847104873)
    * @param url - The URL to check
    */
-  isPersonalizedTrackURL(url: string): boolean;
+  isPersonalizedTrackURL(url: string): any;
   /**
    * Returns true if the given URL is a Firebase URL (of the form https://soundcloud.app.goo.gl/XXXXXXXX)
    * @param url - The URL to check
    */
-  isFirebaseURL(url: string): boolean;
+  isFirebaseURL(url: string): any;
   getClientID(): Promise<string>;
   /** @internal */
   setClientID(clientID?: string): Promise<string>;
@@ -316,9 +328,52 @@ declare class SCDL {
    * @param url
    */
   prepareURL(url: string): Promise<string>;
+  /**
+   * Sprawdza czy błąd można ponowić
+   */
+  isRetryableError(error: SCDLError): boolean;
+  /**
+   * Czyści cache client ID (zmusza do ponownego pobrania)
+   */
+  clearClientID(): void;
+  /**
+   * Sprawdza status połączenia z SoundCloud API
+   */
+  healthCheck(): Promise<{
+    status: 'ok' | 'error';
+    clientID?: string;
+    error?: string;
+  }>;
+  /**
+   * Ustawia opcje retry dla instancji
+   */
+  setRetryOptions(maxRetries: number, retryDelay: number): void;
+  /**
+   * Pobiera obecne ustawienia retry
+   */
+  getRetryOptions(): {
+    maxRetries: number;
+    retryDelay: number;
+  };
+  /**
+   * Ustawia timeout dla żądań
+   */
+  setTimeout(timeout: number): void;
+  /**
+   * Pobiera obecny timeout
+   */
+  getTimeout(): number;
+  /**
+   * Włącza/wyłącza walidację URL
+   */
+  setUrlValidation(validate: boolean): void;
+  /**
+   * Sprawdza czy walidacja URL jest włączona
+   */
+  isUrlValidationEnabled(): boolean;
 }
 declare const scdl: SCDL;
 declare const create: (options: SCDLOptions) => SCDL;
 //#endregion
-export { SCDL, SCDLOptions, create, scdl as default };
+export { SCDL, SCDLError, SCDLErrorType, SCDLOptions, create, scdl as default };
 //# sourceMappingURL=index.d.ts.map
