@@ -132,6 +132,7 @@ export class SCDL {
   private _retryDelay: number
   private _timeout: number
   private _validateUrls: boolean
+  private _responseInterceptorId?: number
 
   axios: AxiosInstance
   saveClientID = process.env.SAVE_CLIENT_ID ? process.env.SAVE_CLIENT_ID.toLowerCase() === 'true' : false
@@ -164,8 +165,7 @@ export class SCDL {
       this.setAxiosInstance(axios)
     }
 
-    // Konfiguruj axios z timeout i interceptorami
-    this._setupAxiosInterceptors()
+    // this._setupAxiosInterceptors()
 
     if (options.stripMobilePrefix === undefined) options.stripMobilePrefix = true
     if (options.convertFirebaseLinks === undefined) options.convertFirebaseLinks = true
@@ -230,12 +230,23 @@ export class SCDL {
    * @internal
    */
   private _setupAxiosInterceptors() {
+    // Usuń poprzedni interceptor jeśli istnieje
+    if (this._responseInterceptorId !== undefined) {
+      this.axios.interceptors.response.eject(this._responseInterceptorId)
+      this._responseInterceptorId = undefined
+    }
+
     this.axios.defaults.timeout = this._timeout
 
     // Response interceptor dla obsługi błędów
-    this.axios.interceptors.response.use(
+    this._responseInterceptorId = this.axios.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
+        // DODAJ STRAŻKĘ: Jeśli błąd już jest SCDLError, nie owijaj ponownie
+        if (error instanceof SCDLError) {
+          throw error
+        }
+
         if (error.response) {
           const status = error.response.status
           if (status === 429) {
@@ -327,6 +338,7 @@ export class SCDL {
       } catch (error) {
         retryConfig.currentAttempt++
         
+        // POPRAW: Sprawdź czy error już jest SCDLError
         if (error instanceof SCDLError) {
           // Niektóre błędy nie powinny być retryowane
           if ([
@@ -746,8 +758,22 @@ export class SCDL {
    */
   setAxiosInstance (instance: AxiosInstance) {
     this.axios = instance
-    this._setupAxiosInterceptors()
+    this._setupAxiosInterceptors() // Interceptory będą poprawnie ustawione tutaj
   }
+
+  // Dodaj metodę do czyszczenia interceptorów (opcjonalnie)
+  private _cleanupInterceptors() {
+    if (this._responseInterceptorId !== undefined) {
+      this.axios.interceptors.response.eject(this._responseInterceptorId)
+      this._responseInterceptorId = undefined
+    }
+  }
+
+  // Dodaj metodę destruktora (opcjonalnie, jeśli klasa ma być jawnie czyszczona)
+  destroy() {
+    this._cleanupInterceptors()
+  }
+}
 
   /**
    * Returns whether or not the given URL is a valid Soundcloud URL
@@ -1075,7 +1101,7 @@ const scdl = new SCDL()
 // Creates an instance of SCDL with custom configuration
 const create = (options: SCDLOptions): SCDL => new SCDL(options)
 
-export { create, SCDLErrorType }
+export { create, SCDLError, SCDLErrorType }
 
 scdl.STREAMING_PROTOCOLS = _PROTOCOLS
 scdl.FORMATS = _FORMATS
