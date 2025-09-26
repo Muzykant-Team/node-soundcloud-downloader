@@ -1,0 +1,134 @@
+name: Build, Generate Docs and Deploy
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - 'src/**'
+      - 'tsconfig.json'
+      - 'typedoc.json'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: ["master"]
+    paths:
+      - 'src/**'
+      - 'tsconfig.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write    # potrzebne do pushowania commitów
+  pages: write       # potrzebne do GitHub Pages
+  id-token: write    # potrzebne do GitHub Pages
+
+concurrency:
+  group: "build-and-deploy-${{ github.ref }}"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-v1
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          # Use --legacy-peer-deps to avoid CI errors caused by peer deps / platform bindings
+          npm install --legacy-peer-deps --no-audit --no-fund
+
+      - name: Build project
+        run: npm run build
+
+      - name: Auto-commit dist (tylko na push do master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Auto-build Bot"
+          
+          git add dist/
+          
+          if git diff --staged --quiet; then
+            echo "Brak zmian w dist/"
+          else
+            git commit -m "🚀 Auto-build dist [skip ci]"
+            echo "Dist zaktualizowany!"
+          fi
+
+      - name: Ensure docs directory exists
+        run: mkdir -p docs
+
+      - name: Generate TypeDoc
+        run: |
+          if npm run | grep -q "docs"; then
+            npm run docs --if-present
+          else
+            npx typedoc --options typedoc.json --out docs
+          fi
+
+      - name: Show docs contents (debug)
+        run: ls -la docs || true
+
+      - name: Commit generated docs (tylko na push do master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          
+          # jeśli nie ma zmian, wyjdź bez błędu
+          if git diff --cached --quiet; then
+            echo "No changes in docs/"
+          else
+            git commit -m "📚 Update generated docs [skip ci]"
+            echo "Docs zaktualizowane!"
+          fi
+
+      - name: Push all changes (tylko na push do master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          # Push wszystkich zmian na raz
+          if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
+            git push origin HEAD:${{ github.ref_name }}
+            echo "Zmiany zostały wypushowane!"
+          else
+            echo "Brak zmian do wypushowania"
+          fi
+
+      # GitHub Pages deployment - tylko na push do master
+      - name: Setup Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact to Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        id: deployment
+        uses: actions/deploy-pages@v4
