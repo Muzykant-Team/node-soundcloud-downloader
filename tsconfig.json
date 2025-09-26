@@ -12,6 +12,7 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
+    "preserveValueImports": true,
     "newLine": "LF"
   },
   "exclude": ["node_modules", "dist"]
