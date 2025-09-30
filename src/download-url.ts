@@ -40,7 +40,13 @@ const fromURL = async (
 
   const apiTimeout = options?.apiTimeout || DEFAULT_API_TIMEOUT;
   const streamTimeout = options?.streamTimeout || DEFAULT_STREAM_TIMEOUT;
-
+  // Walidacja timeoutów
+  if (!Number.isFinite(apiTimeout) || apiTimeout <= 0) {
+    throw new Error('apiTimeout must be a positive number');
+  }
+  if (!Number.isFinite(streamTimeout) || streamTimeout <= 0) {
+    throw new Error('streamTimeout must be a positive number');
+  }
   try {
     const link = appendURL(url, 'client_id', clientID);
     
