@@ -8,6 +8,16 @@ const DEFAULT_API_TIMEOUT = 20000; // 20 sekund
 const DEFAULT_STREAM_TIMEOUT = 30000; // 30 sekund
 const MAX_RETRIES = 3;
 
+/**
+ * Maskuje wrażliwe parametry w URL (np. client_id, oauth_token)
+ */
+const sanitizeURL = (url: string): string => {
+  return url
+    .replace(/(client_id=)[^&]+/gi, '$1***')
+    .replace(/(oauth_token=)[^&]+/gi, '$1***')
+    .replace(/(auth_token=)[^&]+/gi, '$1***');
+}
+
 const fromURL = async (
   url: string, 
   clientID: string, 
@@ -50,18 +60,23 @@ const fromURL = async (
     }
 
     if (!res.data.url) {
+      const safeLink = sanitizeURL(link);
       throw new Error(
-        `Invalid response from SoundCloud. Missing 'url' field. Check if the URL is correct: ${link}`
+        `Invalid response from SoundCloud. Missing 'url' field. Check if the URL is correct: ${safeLink}`
       );
     }
 
+    // Użyj faktycznego URL ze odpowiedzi, nie wejściowego URL
+    const streamURL: string = res.data.url;
+
     // Progressive download z retry logic
-    if (url.includes('/progressive')) {
+    // Sprawdzamy streamURL (nie wejściowy url) aby prawidłowo wykryć typ
+    if (streamURL.includes('/progressive')) {
       let lastError: unknown;
 
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         try {
-          const streamRes = await axiosInstance.get(res.data.url, {
+          const streamRes = await axiosInstance.get(streamURL, {
             withCredentials: true,
             responseType: 'stream',
             timeout: streamTimeout
@@ -93,7 +108,7 @@ const fromURL = async (
 
     // HLS stream z retry logic
     try {
-      return m3u8stream(res.data.url, {
+      return m3u8stream(streamURL, {
         requestOptions: {
           maxRetries: MAX_RETRIES,
           maxReconnects: MAX_RETRIES
