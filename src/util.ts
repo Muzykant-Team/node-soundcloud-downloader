@@ -5,7 +5,7 @@ import { AxiosError, isAxiosError } from 'axios'
 /* eslint-disable camelcase */
 export interface PaginatedQuery<T> {
   collection: T[],
-  total_results?: number, 
+  total_results?: number, // is omitted if limit parameter is supplied
   next_href: string,
   query_urn: string
 }
@@ -13,6 +13,7 @@ export interface PaginatedQuery<T> {
 export const resolveURL = 'https://api-v2.soundcloud.com/resolve'
 
 export const handleRequestErrs = (err: unknown): Error => {
+  // Obsługa błędów nie-Axios
   if (!isAxiosError(err)) {
     if (err instanceof Error) {
       return err;
@@ -22,11 +23,15 @@ export const handleRequestErrs = (err: unknown): Error => {
 
   const axiosErr = err as AxiosError;
   
+  // Brak odpowiedzi - problemy sieciowe
   if (!axiosErr.response) {
-    const message = axiosErr.code === 'ECONNABORTED' 
+    // Obsługa obu kodów timeout: ECONNABORTED i ETIMEDOUT
+    const message = axiosErr.code === 'ECONNABORTED' || axiosErr.code === 'ETIMEDOUT'
       ? 'Request timeout. Please check your connection.'
       : axiosErr.code === 'ERR_NETWORK'
       ? 'Network error. Please check your internet connection.'
+      : axiosErr.code === 'ERR_CANCELED'
+      ? 'Request was canceled.'
       : 'Request failed. Please try again.';
     return new Error(message, { cause: axiosErr });
   }
@@ -67,8 +72,11 @@ export const appendURL = (url: string, ...params: string[]): string => {
   try {
     const u = new URL(url);
     
+    // Walidacja: params musi być parzystej długości
     if (params.length % 2 !== 0) {
-      throw new Error('Parameters must be provided in key-value pairs');
+      throw new Error(
+        `Parameters must be provided in key-value pairs. Received ${params.length} parameters.`
+      );
     }
 
     for (let idx = 0; idx < params.length; idx += 2) {
