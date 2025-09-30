@@ -1,13 +1,23 @@
 /** @internal @packageDocumentation */
-import { AxiosInstance, AxiosError } from 'axios'
+import { AxiosInstance } from 'axios'
 import m3u8stream from 'm3u8stream'
 import { handleRequestErrs, appendURL } from './util'
+
+// Konfigurowalny timeout z sensownym defaultem
+const DEFAULT_API_TIMEOUT = 20000; // 20 sekund
+const DEFAULT_STREAM_TIMEOUT = 30000; // 30 sekund
+const MAX_RETRIES = 3;
 
 const fromURL = async (
   url: string, 
   clientID: string, 
-  axiosInstance: AxiosInstance
+  axiosInstance: AxiosInstance,
+  options?: {
+    apiTimeout?: number;
+    streamTimeout?: number;
+  }
 ): Promise<any | m3u8stream.Stream> => {
+  // Walidacja wejścia
   if (!url || typeof url !== 'string') {
     throw new Error('Invalid URL parameter');
   }
@@ -17,6 +27,9 @@ const fromURL = async (
   if (!axiosInstance) {
     throw new Error('Axios instance is required');
   }
+
+  const apiTimeout = options?.apiTimeout || DEFAULT_API_TIMEOUT;
+  const streamTimeout = options?.streamTimeout || DEFAULT_STREAM_TIMEOUT;
 
   try {
     const link = appendURL(url, 'client_id', clientID);
@@ -28,9 +41,10 @@ const fromURL = async (
         'Accept-Encoding': 'gzip, deflate, br'
       },
       withCredentials: true,
-      timeout: 10000 
+      timeout: apiTimeout
     });
 
+    // Walidacja odpowiedzi
     if (!res.data) {
       throw new Error('Empty response from SoundCloud API');
     }
@@ -41,29 +55,48 @@ const fromURL = async (
       );
     }
 
+    // Progressive download z retry logic
     if (url.includes('/progressive')) {
-      try {
-        const streamRes = await axiosInstance.get(res.data.url, {
-          withCredentials: true,
-          responseType: 'stream',
-          timeout: 30000 
-        });
-        
-        if (!streamRes.data) {
-          throw new Error('Failed to retrieve audio stream');
+      let lastError: unknown;
+
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+          const streamRes = await axiosInstance.get(res.data.url, {
+            withCredentials: true,
+            responseType: 'stream',
+            timeout: streamTimeout
+          });
+          
+          if (!streamRes.data) {
+            throw new Error('Failed to retrieve audio stream');
+          }
+          
+          return streamRes.data;
+        } catch (streamErr) {
+          lastError = streamErr;
+          
+          // Jeśli to nie ostatnia próba, czekaj przed ponowieniem
+          if (attempt < MAX_RETRIES - 1) {
+            await new Promise(resolve => 
+              setTimeout(resolve, 1000 * (attempt + 1))
+            );
+            continue;
+          }
         }
-        
-        return streamRes.data;
-      } catch (streamErr) {
-        throw new Error('Failed to download progressive stream', { cause: streamErr });
       }
+
+      throw new Error(
+        `Failed to download progressive stream after ${MAX_RETRIES} attempts`, 
+        { cause: lastError }
+      );
     }
 
+    // HLS stream z retry logic
     try {
       return m3u8stream(res.data.url, {
         requestOptions: {
-          maxRetries: 3,
-          maxReconnects: 3
+          maxRetries: MAX_RETRIES,
+          maxReconnects: MAX_RETRIES
         }
       });
     } catch (m3u8Err) {
