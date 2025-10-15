@@ -1,8 +1,5 @@
 import axios, { type AxiosInstance } from 'axios';
 
-// --- Wyrażenia regularne ---
-// Używamy stałych (const) z nazwami pisanymi wielkimi literami dla lepszej czytelności.
-
 /**
  * Regex dopasowujący standardowe i mobilne adresy URL SoundCloud.
  * Obsługuje:
