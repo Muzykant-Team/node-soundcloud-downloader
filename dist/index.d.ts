@@ -117,8 +117,8 @@ interface FilterPredicateObject {
 }
 //#endregion
 //#region src/util.d.ts
-interface PaginatedQuery<T$1> {
-  collection: T$1[];
+interface PaginatedQuery<T> {
+  collection: T[];
   total_results?: number;
   next_href: string;
   query_urn: string;
