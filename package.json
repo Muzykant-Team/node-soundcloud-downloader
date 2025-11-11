@@ -15,7 +15,7 @@
   },
   "scripts": {
     "docs": "typedoc && touch ./docs/.nojekyll",
-    "build": "tsdown src/index.ts --format esm --dts --minify --clean",
+    "build": "tsdown src/index.ts --format esm,cjs --dts --minify --clean",
     "publish-script": "./publish.sh",
     "test": "jest --runInBand"
   },
