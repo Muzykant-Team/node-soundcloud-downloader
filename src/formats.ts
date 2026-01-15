@@ -102,6 +102,44 @@ export enum FORMATS {
   /** WMA Lossless */
   WMA_LOSSLESS = 'audio/x-ms-wma',
 
+  /** Monkey's Audio (APE) */
+  APE = 'audio/ape',
+  /** True Audio (TTA) */
+  TTA = 'audio/tta',
+  /** WavPack */
+  WAVPACK = 'audio/wavpack',
+  /** WavPack Hybrid (lossy+correction) */
+  WAVPACK_HYBRID = 'audio/wavpack',
+  /** Musepack / MPC */
+  MUSEPACK = 'audio/musepack',
+  /** OptimFROG */
+  OPTIMFROG = 'audio/ofr',
+  /** Shorten */
+  SHORTEN = 'audio/shn',
+  /** TAK (Tom's Audio Kompressor) */
+  TAK = 'audio/tak',
+  /** LA (Lossless Audio) */
+  LA = 'audio/la',
+  /** ATRAC Advanced Lossless */
+  ATRAC_AL = 'audio/atrac-al',
+  /** FLAC in Matroska container */
+  MKA_FLAC = 'audio/x-matroska',
+
+  // --------------------------------------------------------------------------
+  // HLS/Streaming Lossless
+  // --------------------------------------------------------------------------
+
+  /** HLS ALAC (Apple Lossless over HLS) */
+  HLS_ALAC = 'application/vnd.apple.mpegurl',
+  /** HLS FLAC */
+  HLS_FLAC = 'application/vnd.apple.mpegurl',
+  /** HLS PCM */
+  HLS_PCM = 'application/vnd.apple.mpegurl',
+  /** DASH FLAC */
+  DASH_FLAC = 'application/dash+xml',
+  /** DASH ALAC */
+  DASH_ALAC = 'application/dash+xml',
+
   // ==========================================================================
   // 2. HIGH BITRATE LOSSY (Premium Quality - 256kbps+)
   // ==========================================================================
@@ -123,6 +161,19 @@ export enum FORMATS {
 
   /** Opus 256kbps */
   OPUS_256 = 'audio/ogg; codecs="opus"',
+
+  // --------------------------------------------------------------------------
+  // HLS/DASH High Bitrate AAC
+  // --------------------------------------------------------------------------
+
+  /** HLS AAC 320kbps */
+  HLS_AAC_320 = 'application/vnd.apple.mpegurl',
+  /** HLS AAC 256kbps - Go+ Premium streaming */
+  HLS_AAC_256 = 'application/vnd.apple.mpegurl',
+  /** DASH AAC 320kbps */
+  DASH_AAC_320 = 'application/dash+xml',
+  /** DASH AAC 256kbps */
+  DASH_AAC_256 = 'application/dash+xml',
 
   // ==========================================================================
   // 3. STANDARD BITRATE (Good Quality - 160-224kbps)
@@ -150,6 +201,15 @@ export enum FORMATS {
   /** Opus 160kbps */
   OPUS_160 = 'audio/ogg; codecs="opus"',
 
+  /** HLS AAC 192kbps */
+  HLS_AAC_192 = 'application/vnd.apple.mpegurl',
+  /** HLS AAC 160kbps - SoundCloud default */
+  HLS_AAC_160 = 'application/vnd.apple.mpegurl',
+  /** DASH AAC 192kbps */
+  DASH_AAC_192 = 'application/dash+xml',
+  /** DASH AAC 160kbps */
+  DASH_AAC_160 = 'application/dash+xml',
+
   // ==========================================================================
   // 4. LOW BITRATE (Standard Quality - 96-128kbps)
   // ==========================================================================
@@ -176,6 +236,15 @@ export enum FORMATS {
   /** Ogg Vorbis 96kbps */
   OGG_VORBIS_96 = 'audio/ogg; codecs="vorbis"',
 
+  /** HLS AAC 128kbps */
+  HLS_AAC_128 = 'application/vnd.apple.mpegurl',
+  /** HLS AAC 96kbps - SoundCloud fallback */
+  HLS_AAC_96 = 'application/vnd.apple.mpegurl',
+  /** DASH AAC 128kbps */
+  DASH_AAC_128 = 'application/dash+xml',
+  /** DASH AAC 96kbps */
+  DASH_AAC_96 = 'application/dash+xml',
+
   // ==========================================================================
   // 5. PREVIEW / ULTRA LOW BITRATE (32-64kbps)
   // ==========================================================================
@@ -200,6 +269,15 @@ export enum FORMATS {
   OPUS_48 = 'audio/ogg; codecs="opus"',
   /** Opus 32kbps */
   OPUS_32 = 'audio/ogg; codecs="opus"',
+
+  /** HLS AAC 64kbps */
+  HLS_AAC_64 = 'application/vnd.apple.mpegurl',
+  /** HLS AAC 48kbps */
+  HLS_AAC_48 = 'application/vnd.apple.mpegurl',
+  /** DASH AAC 64kbps */
+  DASH_AAC_64 = 'application/dash+xml',
+  /** DASH AAC 48kbps */
+  DASH_AAC_48 = 'application/dash+xml',
 
   /** MP3 Preview */
   MP3_PREVIEW = 'audio/mpeg',
@@ -323,38 +401,166 @@ export enum FORMATS {
 
   /** MPEG-H Audio */
   MPEGH = 'audio/mhas',
+
+  // ==========================================================================
+  // 11. SONY / PLAYSTATION FORMATS
+  // ==========================================================================
+
+  /** Sony ATRAC */
+  ATRAC = 'audio/atrac',
+  /** ATRAC3 */
+  ATRAC3 = 'audio/atrac3',
+  /** ATRAC3+ */
+  ATRAC3_PLUS = 'audio/atrac3plus',
+  /** ATRAC9 */
+  ATRAC9 = 'audio/atrac9',
+
+  // ==========================================================================
+  // 12. GAME / MULTIMEDIA FORMATS
+  // ==========================================================================
+
+  /** XMA (Xbox Media Audio) */
+  XMA = 'audio/xma',
+  /** XMA2 */
+  XMA2 = 'audio/xma2',
+  /** BINK Audio */
+  BINK = 'audio/bink',
+  /** Vorbis in Matroska */
+  MKA_VORBIS = 'audio/x-matroska',
+  /** Generic Matroska Audio */
+  MKA = 'audio/x-matroska',
+
+  // ==========================================================================
+  // 13. FUTURE / EXPERIMENTAL CODECS
+  // ==========================================================================
+
+  /** AV1 Audio (experimental) */
+  AV1_AUDIO = 'audio/av1',
+  /** USAC (Unified Speech and Audio Coding) */
+  USAC = 'audio/usac',
+  /** EVS (Enhanced Voice Services) */
+  EVS = 'audio/evs',
+  /** LC3 (Low Complexity Communication Codec) */
+  LC3 = 'audio/lc3',
+  /** LC3plus */
+  LC3_PLUS = 'audio/lc3plus',
+  /** Lyra (Google) */
+  LYRA = 'audio/lyra',
+  /** Satin (Google) */
+  SATIN = 'audio/satin',
+  /** Encodec (Meta) */
+  ENCODEC = 'audio/encodec',
+  /** SoundStream */
+  SOUNDSTREAM = 'audio/soundstream',
+
+  // ==========================================================================
+  // 14. STREAMING SPECIFIC
+  // ==========================================================================
+
+  /** HLS Audio AAC */
+  HLS_AAC = 'application/vnd.apple.mpegurl',
+  /** HLS Audio fMP4 */
+  HLS_FMP4 = 'application/vnd.apple.mpegurl',
+  /** DASH Audio */
+  DASH = 'application/dash+xml',
+  /** Smooth Streaming Audio */
+  SMOOTH = 'application/vnd.ms-sstr+xml',
 }
 
 // ============================================================================
 // FORMAT PRIORITY (Ordered best to worst for automatic selection)
 // ============================================================================
 
-/** Ordered list of formats from best to worst for automatic selection */
+/** Ordered list of formats from BEST to WORST for automatic selection */
 export const FORMAT_PRIORITY: FORMATS[] = [
-  // Lossless
+  // ========== 1. LOSSLESS (Best Quality) ==========
+  // DSD (highest resolution)
   FORMATS.DSD_512, FORMATS.DSD_256, FORMATS.DSD_128, FORMATS.DSD_64, FORMATS.DSD,
+  // MQA
   FORMATS.MQA,
+  // FLAC (by bit depth and sample rate)
   FORMATS.FLAC_32_384, FORMATS.FLAC_24_192, FORMATS.FLAC_24_96, FORMATS.FLAC_24_48, FORMATS.FLAC_24, FORMATS.FLAC_16, FORMATS.FLAC,
+  // WAV
   FORMATS.WAV_32F, FORMATS.WAV_32, FORMATS.WAV_24, FORMATS.WAV_16, FORMATS.WAV,
+  // AIFF
   FORMATS.AIFF_24, FORMATS.AIFF_16, FORMATS.AIFF,
+  // ALAC
   FORMATS.ALAC_24, FORMATS.ALAC_16, FORMATS.ALAC,
-  FORMATS.WMA_LOSSLESS,
-  // High bitrate
+  // Other lossless
+  FORMATS.WMA_LOSSLESS, FORMATS.APE, FORMATS.TTA, FORMATS.WAVPACK, FORMATS.WAVPACK_HYBRID,
+  FORMATS.MUSEPACK, FORMATS.OPTIMFROG, FORMATS.SHORTEN, FORMATS.TAK, FORMATS.LA,
+  FORMATS.ATRAC_AL, FORMATS.MKA_FLAC,
+  // HLS/DASH Lossless
+  FORMATS.HLS_ALAC, FORMATS.HLS_FLAC, FORMATS.HLS_PCM, FORMATS.DASH_FLAC, FORMATS.DASH_ALAC,
+
+  // ========== 2. HIGH BITRATE (256kbps+) ==========
   FORMATS.AAC_320, FORMATS.AAC_256,
   FORMATS.MP3_320, FORMATS.MP3_256,
   FORMATS.OGG_VORBIS_500, FORMATS.OGG_VORBIS_320,
   FORMATS.OPUS_256,
-  // Standard
+  // HLS/DASH High Bitrate
+  FORMATS.HLS_AAC_320, FORMATS.HLS_AAC_256, FORMATS.DASH_AAC_320, FORMATS.DASH_AAC_256,
+
+  // ========== 3. STANDARD QUALITY (160-224kbps) ==========
   FORMATS.AAC_224, FORMATS.AAC_192, FORMATS.AAC_160,
   FORMATS.MP3_224, FORMATS.MP3_192, FORMATS.MP3_160,
-  // Low
+  FORMATS.OGG_VORBIS_192, FORMATS.OGG_VORBIS_160,
+  FORMATS.OPUS_160,
+  // HLS/DASH Standard
+  FORMATS.HLS_AAC_192, FORMATS.HLS_AAC_160, FORMATS.DASH_AAC_192, FORMATS.DASH_AAC_160,
+
+  // ========== 4. LOW QUALITY (96-128kbps) ==========
   FORMATS.AAC_128, FORMATS.AAC_96,
   FORMATS.MP3_128, FORMATS.MP3_112, FORMATS.MP3_96,
   FORMATS.OPUS_128, FORMATS.OPUS_96,
-  // Preview
-  FORMATS.AAC_64, FORMATS.AAC_48,
-  FORMATS.MP3_64, FORMATS.MP3_48,
-  FORMATS.OPUS_64, FORMATS.OPUS_48,
+  FORMATS.OGG_VORBIS_128, FORMATS.OGG_VORBIS_96,
+  // HLS/DASH Low
+  FORMATS.HLS_AAC_128, FORMATS.HLS_AAC_96, FORMATS.DASH_AAC_128, FORMATS.DASH_AAC_96,
+
+  // ========== 5. PREVIEW / ULTRA LOW (32-64kbps) ==========
+  FORMATS.AAC_64, FORMATS.AAC_48, FORMATS.AAC_32,
+  FORMATS.MP3_64, FORMATS.MP3_48, FORMATS.MP3_32,
+  FORMATS.OPUS_64, FORMATS.OPUS_48, FORMATS.OPUS_32,
+  FORMATS.MP3_PREVIEW,
+  // HLS/DASH Preview
+  FORMATS.HLS_AAC_64, FORMATS.HLS_AAC_48, FORMATS.DASH_AAC_64, FORMATS.DASH_AAC_48,
+
+  // ========== 6. GENERIC FORMATS ==========
+  FORMATS.AAC, FORMATS.AAC_LC, FORMATS.AAC_HE, FORMATS.AAC_HE_V2, FORMATS.AAC_XHE,
+  FORMATS.MP3, FORMATS.OPUS, FORMATS.WEBM_OPUS,
+  FORMATS.OGG_VORBIS, FORMATS.OGG,
+  FORMATS.M4A, FORMATS.MP4_AUDIO,
+
+  // ========== 7. SURROUND / MULTICHANNEL ==========
+  FORMATS.DOLBY_ATMOS, FORMATS.EAC3, FORMATS.AC3,
+  FORMATS.DTS_X, FORMATS.DTS_HD, FORMATS.DTS,
+
+  // ========== 8. SONY / GAME FORMATS ==========
+  FORMATS.ATRAC9, FORMATS.ATRAC3_PLUS, FORMATS.ATRAC3, FORMATS.ATRAC,
+  FORMATS.XMA2, FORMATS.XMA, FORMATS.BINK,
+
+  // ========== 9. FUTURE / EXPERIMENTAL ==========
+  FORMATS.MPEGH, FORMATS.USAC, FORMATS.AC4,
+  FORMATS.LC3_PLUS, FORMATS.LC3, FORMATS.EVS,
+  FORMATS.LYRA, FORMATS.SATIN, FORMATS.ENCODEC, FORMATS.SOUNDSTREAM, FORMATS.AV1_AUDIO,
+
+  // ========== 10. STREAMING ==========
+  FORMATS.HLS_AAC, FORMATS.HLS_FMP4, FORMATS.DASH, FORMATS.SMOOTH,
+
+  // ========== 11. VOICE / MOBILE ==========
+  FORMATS.AMR_WB, FORMATS.AMR_NB, FORMATS.AMR,
+  FORMATS.EVS, FORMATS.GSM,
+  FORMATS.G711_ULAW, FORMATS.G711_ALAW,
+  FORMATS.THREE_GPP, FORMATS.THREE_GPP2,
+
+  // ========== 12. LEGACY / OTHER ==========
+  FORMATS.MP2, FORMATS.MP1,
+  FORMATS.WMA_PRO, FORMATS.WMA_VOICE, FORMATS.WMA,
+  FORMATS.REAL_AUDIO, FORMATS.SPEEX,
+  FORMATS.CAF, FORMATS.MKA, FORMATS.MKA_VORBIS,
+  FORMATS.AU, FORMATS.SND,
+  FORMATS.PCM_F32LE, FORMATS.PCM_S24LE, FORMATS.PCM_S16LE, FORMATS.PCM_RAW,
+  FORMATS.MIDI, FORMATS.MID,
 ];
 
 // ============================================================================
@@ -429,8 +635,9 @@ export const getFormatForTier = (tier: QUALITY_TIER): FORMATS => {
 
 /** Get bitrate in kbps (0 if unknown/lossless) */
 export const getFormatBitrate = (format: FORMATS): number => {
-  const match = format.toString().match(/(\d+)$/);
-  if (match) {
+  const formatStr = String(format);
+  const match = formatStr.match(/(\d+)$/);
+  if (match?.[1]) {
     const num = parseInt(match[1], 10);
     // Filter out codec numbers and sample rates
     if (num <= 512 && num !== 40 && num !== 42 && num !== 29 && num !== 5 && num !== 2) {

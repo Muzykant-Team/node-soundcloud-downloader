@@ -69,6 +69,38 @@ declare enum FORMATS {
   ALAC = "audio/alac",
   /** WMA Lossless */
   WMA_LOSSLESS = "audio/x-ms-wma",
+  /** Monkey's Audio (APE) */
+  APE = "audio/ape",
+  /** True Audio (TTA) */
+  TTA = "audio/tta",
+  /** WavPack */
+  WAVPACK = "audio/wavpack",
+  /** WavPack Hybrid (lossy+correction) */
+  WAVPACK_HYBRID = "audio/wavpack",
+  /** Musepack / MPC */
+  MUSEPACK = "audio/musepack",
+  /** OptimFROG */
+  OPTIMFROG = "audio/ofr",
+  /** Shorten */
+  SHORTEN = "audio/shn",
+  /** TAK (Tom's Audio Kompressor) */
+  TAK = "audio/tak",
+  /** LA (Lossless Audio) */
+  LA = "audio/la",
+  /** ATRAC Advanced Lossless */
+  ATRAC_AL = "audio/atrac-al",
+  /** FLAC in Matroska container */
+  MKA_FLAC = "audio/x-matroska",
+  /** HLS ALAC (Apple Lossless over HLS) */
+  HLS_ALAC = "application/vnd.apple.mpegurl",
+  /** HLS FLAC */
+  HLS_FLAC = "application/vnd.apple.mpegurl",
+  /** HLS PCM */
+  HLS_PCM = "application/vnd.apple.mpegurl",
+  /** DASH FLAC */
+  DASH_FLAC = "application/dash+xml",
+  /** DASH ALAC */
+  DASH_ALAC = "application/dash+xml",
   /** AAC 320kbps (if available) */
   AAC_320 = "audio/mp4; codecs=\"mp4a.40.2\"",
   /** AAC 256kbps - Go+ Premium */
@@ -83,6 +115,14 @@ declare enum FORMATS {
   OGG_VORBIS_320 = "audio/ogg; codecs=\"vorbis\"",
   /** Opus 256kbps */
   OPUS_256 = "audio/ogg; codecs=\"opus\"",
+  /** HLS AAC 320kbps */
+  HLS_AAC_320 = "application/vnd.apple.mpegurl",
+  /** HLS AAC 256kbps - Go+ Premium streaming */
+  HLS_AAC_256 = "application/vnd.apple.mpegurl",
+  /** DASH AAC 320kbps */
+  DASH_AAC_320 = "application/dash+xml",
+  /** DASH AAC 256kbps */
+  DASH_AAC_256 = "application/dash+xml",
   /** AAC 224kbps */
   AAC_224 = "audio/mp4; codecs=\"mp4a.40.2\"",
   /** AAC 192kbps */
@@ -101,6 +141,14 @@ declare enum FORMATS {
   OGG_VORBIS_160 = "audio/ogg; codecs=\"vorbis\"",
   /** Opus 160kbps */
   OPUS_160 = "audio/ogg; codecs=\"opus\"",
+  /** HLS AAC 192kbps */
+  HLS_AAC_192 = "application/vnd.apple.mpegurl",
+  /** HLS AAC 160kbps - SoundCloud default */
+  HLS_AAC_160 = "application/vnd.apple.mpegurl",
+  /** DASH AAC 192kbps */
+  DASH_AAC_192 = "application/dash+xml",
+  /** DASH AAC 160kbps */
+  DASH_AAC_160 = "application/dash+xml",
   /** AAC 128kbps */
   AAC_128 = "audio/mp4; codecs=\"mp4a.40.2\"",
   /** AAC 96kbps - HLS fallback */
@@ -119,6 +167,14 @@ declare enum FORMATS {
   OGG_VORBIS_128 = "audio/ogg; codecs=\"vorbis\"",
   /** Ogg Vorbis 96kbps */
   OGG_VORBIS_96 = "audio/ogg; codecs=\"vorbis\"",
+  /** HLS AAC 128kbps */
+  HLS_AAC_128 = "application/vnd.apple.mpegurl",
+  /** HLS AAC 96kbps - SoundCloud fallback */
+  HLS_AAC_96 = "application/vnd.apple.mpegurl",
+  /** DASH AAC 128kbps */
+  DASH_AAC_128 = "application/dash+xml",
+  /** DASH AAC 96kbps */
+  DASH_AAC_96 = "application/dash+xml",
   /** AAC 64kbps - Low bandwidth */
   AAC_64 = "audio/mp4; codecs=\"mp4a.40.29\"",
   /** AAC 48kbps - Ultra low */
@@ -137,6 +193,14 @@ declare enum FORMATS {
   OPUS_48 = "audio/ogg; codecs=\"opus\"",
   /** Opus 32kbps */
   OPUS_32 = "audio/ogg; codecs=\"opus\"",
+  /** HLS AAC 64kbps */
+  HLS_AAC_64 = "application/vnd.apple.mpegurl",
+  /** HLS AAC 48kbps */
+  HLS_AAC_48 = "application/vnd.apple.mpegurl",
+  /** DASH AAC 64kbps */
+  DASH_AAC_64 = "application/dash+xml",
+  /** DASH AAC 48kbps */
+  DASH_AAC_48 = "application/dash+xml",
   /** MP3 Preview */
   MP3_PREVIEW = "audio/mpeg",
   /** AAC generic (default profile) */
@@ -226,6 +290,50 @@ declare enum FORMATS {
   AC4 = "audio/ac4",
   /** MPEG-H Audio */
   MPEGH = "audio/mhas",
+  /** Sony ATRAC */
+  ATRAC = "audio/atrac",
+  /** ATRAC3 */
+  ATRAC3 = "audio/atrac3",
+  /** ATRAC3+ */
+  ATRAC3_PLUS = "audio/atrac3plus",
+  /** ATRAC9 */
+  ATRAC9 = "audio/atrac9",
+  /** XMA (Xbox Media Audio) */
+  XMA = "audio/xma",
+  /** XMA2 */
+  XMA2 = "audio/xma2",
+  /** BINK Audio */
+  BINK = "audio/bink",
+  /** Vorbis in Matroska */
+  MKA_VORBIS = "audio/x-matroska",
+  /** Generic Matroska Audio */
+  MKA = "audio/x-matroska",
+  /** AV1 Audio (experimental) */
+  AV1_AUDIO = "audio/av1",
+  /** USAC (Unified Speech and Audio Coding) */
+  USAC = "audio/usac",
+  /** EVS (Enhanced Voice Services) */
+  EVS = "audio/evs",
+  /** LC3 (Low Complexity Communication Codec) */
+  LC3 = "audio/lc3",
+  /** LC3plus */
+  LC3_PLUS = "audio/lc3plus",
+  /** Lyra (Google) */
+  LYRA = "audio/lyra",
+  /** Satin (Google) */
+  SATIN = "audio/satin",
+  /** Encodec (Meta) */
+  ENCODEC = "audio/encodec",
+  /** SoundStream */
+  SOUNDSTREAM = "audio/soundstream",
+  /** HLS Audio AAC */
+  HLS_AAC = "application/vnd.apple.mpegurl",
+  /** HLS Audio fMP4 */
+  HLS_FMP4 = "application/vnd.apple.mpegurl",
+  /** DASH Audio */
+  DASH = "application/dash+xml",
+  /** Smooth Streaming Audio */
+  SMOOTH = "application/vnd.ms-sstr+xml",
 }
 //#endregion
 //#region src/info.d.ts
@@ -312,8 +420,8 @@ interface FilterPredicateObject {
 }
 //#endregion
 //#region src/util.d.ts
-interface PaginatedQuery<T> {
-  collection: T[];
+interface PaginatedQuery<T$1> {
+  collection: T$1[];
   total_results?: number;
   next_href: string;
   query_urn: string;
@@ -574,4 +682,4 @@ declare const scdl: SCDL;
 declare const create: (options: SCDLOptions) => SCDL;
 //#endregion
 export { SCDL, SCDLError, SCDLErrorType, SCDLOptions, create, scdl as default };
-//# sourceMappingURL=index-BleFdkvZ.d.cts.map
+//# sourceMappingURL=index-VznBemky.d.cts.map
