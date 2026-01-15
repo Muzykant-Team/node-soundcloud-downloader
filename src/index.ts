@@ -880,7 +880,7 @@ export class SCDL {
           c = JSON.parse(data)
         } catch (parseErr) {
           return reject(new SCDLError(
-'Błąd parsowania client_id.json',
+            'Błąd parsowania client_id.json',
             SCDLErrorType.PARSING_ERROR,
             parseErr as Error
           ))
