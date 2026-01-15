@@ -3,7 +3,7 @@
 import { AxiosInstance } from 'axios'
 import m3u8stream from 'm3u8stream'
 import { handleRequestErrs, appendURL } from './util'
-import getInfo, { Transcoding } from './info'
+import getInfo, { type Transcoding } from './info'
 
 export const getMediaURL = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<string> => {
   const res = await axiosInstance.get(appendURL(url, 'client_id', clientID), {
@@ -62,7 +62,7 @@ export const fromMediaObjBase = async (media: Transcoding, clientID: string,
   getHLSStreamFunction: (mediaUrl: string) => m3u8stream.Stream,
   fromURLFunction: typeof fromURL,
   axiosInstance: AxiosInstance): Promise<any | m3u8stream.Stream> => {
-  if (!validatemedia(media)) throw new Error('Invalid media object provided')
+  if (!validateMedia(media)) throw new Error('Invalid media object provided')
   return await fromURLFunction(media.url, clientID, axiosInstance)
 }
 
@@ -75,6 +75,18 @@ export const fromDownloadLink = async (id: number, clientID: string, axiosInstan
   })
 
   return data
+}
+
+/**
+ * Waliduje czy media transcoding jest prawidłowy
+ * @internal
+ */
+const validateMedia = (media: Transcoding): boolean => {
+  if (!media || !media.url || !media.format) return false
+  if (!media.format.protocol) return false
+  // Sprawdź czy protocol jest obsługiwany
+  if (!['hls', 'progressive'].includes(media.format.protocol)) return false
+  return true
 }
 
 /** @internal */
@@ -91,7 +103,7 @@ export const download = async (url: string, clientID: string, axiosInstance: Axi
 
   // Ulepszone wybieranie najlepszego transcoding
   const availableTranscodings = info.media.transcodings.filter(t => 
-    validatemedia(t) && 
+    validateMedia(t) && 
     t.url && 
     t.format && 
     (t.format.protocol === 'hls' || t.format.protocol === 'progressive')
@@ -107,22 +119,15 @@ export const download = async (url: string, clientID: string, axiosInstance: Axi
   ) || availableTranscodings[0]
 
   // Spróbuj wszystkich dostępnych transcodings jeśli pierwszy nie działa
-  for (const transcoding of availableTranscodings) {
+  for (let i = 0; i < availableTranscodings.length; i++) {
+    const transcoding = availableTranscodings[i]
     try {
       return await fromMediaObj(transcoding, clientID, axiosInstance)
     } catch (err) {
       console.log(`Transcoding failed: ${transcoding.format.protocol}, trying next...`)
-      if (transcoding === availableTranscodings[availableTranscodings.length - 1]) {
+      if (i === availableTranscodings.length - 1) {
         throw err // Ostatni transcoding - rzuć błąd
       }
     }
   }
-}
-
-const validatemedia = (media: Transcoding) => {
-  if (!media || !media.url || !media.format) return false
-  if (!media.format.protocol) return false
-  // Sprawdź czy protocol jest obsługiwany
-  if (!['hls', 'progressive'].includes(media.format.protocol)) return false
-  return true
 }
