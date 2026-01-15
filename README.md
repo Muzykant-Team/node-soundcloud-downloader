@@ -2,7 +2,7 @@
 
 > ⚡️ This is a **maintained fork** of [node-soundcloud-downloader](https://github.com/zackradisic/node-soundcloud-downloader)  
 > 👤 Originally created and developed by **[Zack Radisic](https://github.com/zackradisic)** — © 2021  
-> 🛠️ Currently maintained with minimal changes by **Muzykant Team (2025)** — https://muzykant.xyz  
+> 🛠️ Currently maintained with minimal changes by **Muzykant Team (2025-2026)** — https://muzykant.xyz  
 > ⚠️ This fork is provided **AS IS**, **without any warranty** — updates and fixes are **minimal and not guaranteed**.  
 > 📄 Licensed under the [MIT License](./LICENSE.md).
 
