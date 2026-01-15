@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     /* Runtime / output */
-    "target": "ES2025",
+    "target": "ES2024",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "dist",
     "rootDir": "src",
-    "lib": ["ES2025"],
+    "lib": ["ES2024"],
 
     /* Typy */
     "types": ["node"],
