@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { AxiosInstance } from 'axios'
-import { TrackInfo, User, SetInfo } from './info'
-import { appendURL, PaginatedQuery } from './util'
+import type { TrackInfo, User, SetInfo } from './info'
+import { appendURL, type PaginatedQuery } from './util'
 
 const baseURL = 'https://api-v2.soundcloud.com/search'
 
@@ -14,13 +14,14 @@ export interface SearchOptions {
   offset?: number,
   resourceType?: SoundcloudResource | 'all',
   query?: string,
-  nextHref?: string
+  nextHref?: string,
+  q?: string
 }
 
 export type SearchResponseAll = PaginatedQuery<User | SetInfo | TrackInfo>
 export type SoundcloudResource = 'tracks' | 'users' | 'albums' | 'playlists'
 
-const validResourceTypes = ['tracks', 'users', 'albums', 'playlists', 'all']
+const validResourceTypes = ['tracks', 'users', 'albums', 'playlists', 'all'] as const
 
 // Funkcja do normalizacji stringów (usuwa znaki specjalne, akcenty, małe litery)
 const normalizeString = (str: string): string => {
@@ -106,6 +107,52 @@ const isOriginalVersion = (title: string, query: string): boolean => {
   return !hasModifiers || queryWantsModified
 }
 
+/**
+ * Waliduje czy track jest dostępny do streamowania
+ * @internal
+ */
+const isTrackValid = (track: any): boolean => {
+  // Podstawowe sprawdzenia
+  if (!track || typeof track !== 'object') return false
+  if (!track.permalink_url || !track.title) return false
+  
+  // Odrzucaj sample o długości w pobliżu 30s (29.5–30.5 sekundy)
+  if (
+    typeof track.duration === 'number' &&
+    track.duration >= 29500 &&
+    track.duration <= 30500
+  ) return false
+  
+  // Sprawdź dostępność regionalną
+  if ('region_restricted' in track && track.region_restricted === true) return false
+  
+  // Sprawdź czy można streamować
+  if (track.streamable !== true) return false
+  
+  // Sprawdź stan utworu
+  if (track.state && track.state !== 'finished') return false
+  
+  // Sprawdź policy (blokady)
+  if (track.policy === 'BLOCK' || track.policy === 'SNIP') return false
+  
+  // Sprawdź czy ma media/transcodings
+  if (!track.media || !track.media.transcodings || track.media.transcodings.length === 0) return false
+  
+  // Sprawdź czy ma dostępne formaty streamowania
+  const hasValidFormat = track.media.transcodings.some((transcoding: any) => 
+    transcoding && 
+    transcoding.url && 
+    (transcoding.format?.protocol === 'hls' || transcoding.format?.protocol === 'progressive')
+  )
+  
+  if (!hasValidFormat) return false
+  
+  // Odrzucaj deleted/private tracks
+  if (track.sharing === 'private' && !track.streamable) return false
+  
+  return true
+}
+
 /** @internal */
 export const search = async (
   options: SearchOptions,
@@ -117,10 +164,13 @@ export const search = async (
   if (!options.offset) options.offset = 0
   if (!options.resourceType) options.resourceType = 'tracks'
   
+  // Obsługa zarówno options.query jak i options.q
+  const queryString = options.query || options.q
+  
   if (options.nextHref) {
     url = appendURL(options.nextHref, 'client_id', clientID)
-  } else if (options.query) {
-    if (!validResourceTypes.includes(options.resourceType)) {
+  } else if (queryString) {
+    if (!validResourceTypes.includes(options.resourceType as any)) {
       throw new Error(
         `${options.resourceType} is not one of ${validResourceTypes
           .map(str => `'${str}'`)
@@ -132,71 +182,31 @@ export const search = async (
       'client_id',
       clientID,
       'q',
-      options.query,
+      queryString,
       'limit',
-      '' + options.limit,
+      String(options.limit),
       'offset',
-      '' + options.offset
+      String(options.offset)
     )
   } else {
-    throw new Error('One of options.query or options.nextHref is required')
+    throw new Error('One of options.query, options.q, or options.nextHref is required')
   }
 
   const { data } = await axiosInstance.get(url)
   
   if (options.resourceType === 'tracks' && Array.isArray(data.collection)) {
-    // PRZYWRÓCONE SPRAWDZANIE SEKUND I INNE FILTRY
-    data.collection = data.collection.filter((track: any) => {
-      // Podstawowe sprawdzenia
-      if (!track || typeof track !== 'object') return false
-      if (!track.permalink_url || !track.title) return false
-      
-      // Odrzucaj sample o długości w pobliżu 30s (29.5–30.5 sekundy)
-      if (
-        typeof track.duration === 'number' &&
-        track.duration >= 29500 &&
-        track.duration <= 30500
-      ) return false
-      
-      // Sprawdź dostępność regionalną
-      if ('region_restricted' in track && track.region_restricted === true) return false
-      
-      // Sprawdź czy można streamować
-      if (track.streamable !== true) return false
-      
-      // Sprawdź stan utworu
-      if (track.state && track.state !== 'finished') return false
-      
-      // Sprawdź policy (blokady)
-      if (track.policy === 'BLOCK' || track.policy === 'SNIP') return false
-      
-      // Sprawdź czy ma media/transcodings
-      if (!track.media || !track.media.transcodings || track.media.transcodings.length === 0) return false
-      
-      // Sprawdź czy ma dostępne formaty streamowania
-      const hasValidFormat = track.media.transcodings.some((transcoding: any) => 
-        transcoding && 
-        transcoding.url && 
-        (transcoding.format?.protocol === 'hls' || transcoding.format?.protocol === 'progressive')
-      )
-      
-      if (!hasValidFormat) return false
-      
-      // Odrzucaj deleted/private tracks
-      if (track.sharing === 'private' && !track.streamable) return false
-      
-      return true
-    })
+    // Filtruj nieprawidłowe tracki
+    data.collection = data.collection.filter(isTrackValid)
     
     // Sortuj wyniki na podstawie dokładności dopasowania do query
-    if (options.query) {
+    if (queryString) {
       data.collection.sort((a: any, b: any) => {
-        const similarityA = calculateSimilarity(options.query!, a.title)
-        const similarityB = calculateSimilarity(options.query!, b.title)
+        const similarityA = calculateSimilarity(queryString, a.title)
+        const similarityB = calculateSimilarity(queryString, b.title)
         
         // Bonus za oryginalną wersję
-        const originalBonusA = isOriginalVersion(a.title, options.query!) ? 50 : 0
-        const originalBonusB = isOriginalVersion(b.title, options.query!) ? 50 : 0
+        const originalBonusA = isOriginalVersion(a.title, queryString) ? 50 : 0
+        const originalBonusB = isOriginalVersion(b.title, queryString) ? 50 : 0
         
         // Bonus za popularność (ale mniejszy niż dokładność)
         const popularityA = (a.likes_count || 0) / 1000
@@ -230,9 +240,9 @@ export const related = async <T extends TrackInfo>(
       'client_id',
       clientID,
       'offset',
-      '' + offset,
+      String(offset),
       'limit',
-      '' + limit
+      String(limit)
     )
   )
   
