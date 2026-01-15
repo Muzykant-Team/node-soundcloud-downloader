@@ -465,6 +465,17 @@ export enum FORMATS {
   DASH = 'application/dash+xml',
   /** Smooth Streaming Audio */
   SMOOTH = 'application/vnd.ms-sstr+xml',
+
+  // ==========================================================================
+  // 15. CATCH-ALL / FALLBACK (Last resort)
+  // ==========================================================================
+
+  /** HLS Any - accept any HLS stream */
+  HLS_ANY = 'application/vnd.apple.mpegurl',
+  /** DASH Any - accept any DASH stream */
+  DASH_ANY = 'application/dash+xml',
+  /** Audio Any - accept any audio format */
+  AUDIO_ANY = 'audio/*',
 }
 
 // ============================================================================
@@ -561,6 +572,9 @@ export const FORMAT_PRIORITY: FORMATS[] = [
   FORMATS.AU, FORMATS.SND,
   FORMATS.PCM_F32LE, FORMATS.PCM_S24LE, FORMATS.PCM_S16LE, FORMATS.PCM_RAW,
   FORMATS.MIDI, FORMATS.MID,
+
+  // ========== 13. CATCH-ALL / FALLBACK (Last resort) ==========
+  FORMATS.HLS_ANY, FORMATS.DASH_ANY, FORMATS.AUDIO_ANY,
 ];
 
 // ============================================================================
