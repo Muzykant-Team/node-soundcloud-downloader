@@ -27,6 +27,11 @@ const FIREBASE_URL_REGEX = /^https?:\/\/(?:soundcloud\.app\.goo\.gl|on\.soundclo
  */
 const GENERIC_URL_SCRAPE_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,500}\.[a-zA-Z0-9()]{1,500}\b([-a-zA-Z0-9()@:%_+.~#?&/\\=;]*)/g;
 
+/**
+ * Stały prefix do sprawdzania spersonalizowanych URL
+ */
+const PERSONALIZED_TRACK_PREFIX = 'https://soundcloud.com/discover/sets/personalized-tracks::';
+
 // --- Funkcje pomocnicze ---
 
 /**
@@ -49,9 +54,15 @@ export const isURL = (url: string, testFirebase: boolean = true, stripMobilePref
 export const isPlaylistURL = (url: string): boolean => {
   // `isURL` sprawdza teraz również format linku Firebase, więc testFirebase ustawiamy na false,
   // aby upewnić się, że analizujemy już rozwiązany URL SoundCloud.
-  if (!isURL(url, false) || !url.includes('/sets/')) {
+  if (!isURL(url, false)) {
     return false;
   }
+  
+  // Szybkie sprawdzenie string przed parsowaniem URL
+  if (!url.includes('/sets/')) {
+    return false;
+  }
+  
   try {
     const parsedUrl = new URL(url);
     // Dodatkowe, bardziej rygorystyczne sprawdzenie ścieżki
@@ -67,8 +78,8 @@ export const isPlaylistURL = (url: string): boolean => {
  * @returns `true`, jeśli URL jest spersonalizowaną playlistą, w przeciwnym razie `false`.
  */
 export const isPersonalizedTrackURL = (url: string): boolean => {
-  if (!isURL(url, false)) return false;
-  return url.startsWith('https://soundcloud.com/discover/sets/personalized-tracks::');
+  if (typeof url !== 'string') return false;
+  return url.startsWith(PERSONALIZED_TRACK_PREFIX);
 };
 
 /**
@@ -101,6 +112,7 @@ export const stripMobilePrefix = (url: string): string => {
  * @returns `true`, jeśli to skrócony link SoundCloud, w przeciwnym razie `false`.
  */
 export const isFirebaseURL = (url: string): boolean => {
+  if (typeof url !== 'string') return false;
   return FIREBASE_URL_REGEX.test(url);
 };
 
@@ -120,9 +132,11 @@ export const convertFirebaseURL = async (url: string, axiosInstance: AxiosInstan
   // Pobieramy zawartość HTML ze skróconego linku, ponieważ często zawiera on docelowy URL w tagach meta lub skryptach.
   const { data: htmlContent } = await axiosInstance.get<string>(urlObject.toString());
   
+  // Reset lastIndex dla bezpieczeństwa (regex z flagą 'g' zachowuje stan)
+  GENERIC_URL_SCRAPE_REGEX.lastIndex = 0;
   const allUrlsInHtml = htmlContent.match(GENERIC_URL_SCRAPE_REGEX);
 
-  if (!allUrlsInHtml) {
+  if (!allUrlsInHtml || allUrlsInHtml.length === 0) {
     throw new Error(`Could not find any URL in the response from the Firebase URL: ${url}`);
   }
 
