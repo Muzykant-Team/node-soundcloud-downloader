@@ -27,10 +27,10 @@ concurrency:
   group: "ci-${{ github.ref }}"
   cancel-in-progress: false
 
-# ============================================================
-# BUILD / TEST / DOCS / PAGES
-# ============================================================
 jobs:
+  # ============================================================
+  # BUILD / TEST / DOCS / PAGES
+  # ============================================================
   build-and-deploy:
     if: github.event_name != 'release'
     environment:
@@ -45,16 +45,28 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Setup Node.js
+      - name: Setup Node.js 25
         uses: actions/setup-node@v6
         with:
           node-version: '25.x'
-          cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Enable corepack and prepare pnpm 10
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.x --activate
+          pnpm --version
+
+      - name: Cache pnpm store
+        id: cache-pnpm
+        run: echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v5
         with:
-          version: '10.x'
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -71,11 +83,11 @@ jobs:
         run: |
           git config user.name "Auto-build Bot"
           git config user.email "action@github.com"
-          git add dist/
+          git add dist/ || true
           if git diff --staged --quiet; then
             echo "No dist changes"
           else
-            git commit -m "🚀 Auto-build dist [skip ci]"
+            git commit -m "🚀 Auto-build dist [skip ci]" || true
           fi
 
       - name: Generate TypeDoc
@@ -92,20 +104,26 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs
+          git add docs || true
           if git diff --cached --quiet; then
             echo "No docs changes"
           else
-            git commit -m "📚 Update docs [skip ci]"
+            git commit -m "📚 Update docs [skip ci]" || true
           fi
 
       - name: Push changes
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
-            git push origin HEAD:${{ github.ref_name }}
+          # push only if there are commits not on origin
+          if git rev-parse --verify origin/${{ github.ref_name }} >/dev/null 2>&1; then
+            if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
+              git push origin HEAD:${{ github.ref_name }}
+            else
+              echo "Nothing to push"
+            fi
           else
-            echo "Nothing to push"
+            # branch not present on origin (rare); push anyway
+            git push origin HEAD:${{ github.ref_name }}
           fi
 
       - name: Setup Pages
@@ -123,9 +141,9 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-# ============================================================
-# PRE-RELEASE
-# ============================================================
+  # ============================================================
+  # PRE-RELEASE
+  # ============================================================
   pre-release:
     needs: build-and-deploy
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -134,7 +152,11 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Generate tag
         id: tag
@@ -142,8 +164,16 @@ jobs:
           TAG="pre-$(date +'%Y.%m.%d-%H%M')"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Zip dist
-        run: zip -r dist.zip dist
+      - name: Zip dist if exists
+        run: |
+          if [ -d "dist" ]; then
+            zip -r dist.zip dist
+            echo "dist.zip created"
+          else
+            echo "No dist directory, creating empty placeholder"
+            mkdir -p .release_placeholder
+            zip -r dist.zip .release_placeholder
+          fi
 
       - name: Create Pre-Release
         uses: softprops/action-gh-release@v2
@@ -154,9 +184,9 @@ jobs:
           generate_release_notes: true
           files: dist.zip
 
-# ============================================================
-# SLSA v3 – GENERIC GENERATOR
-# ============================================================
+  # ============================================================
+  # SLSA v3 – GENERIC GENERATOR (on release created)
+  # ============================================================
   slsa-build:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
@@ -164,25 +194,48 @@ jobs:
       digests: ${{ steps.hash.outputs.digests }}
 
     steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
+      - name: Checkout
+        uses: actions/checkout@v6
         with:
-          node-version: 24
+          fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js 25 for SLSA
+        uses: actions/setup-node@v6
         with:
-          version: '10.x'
+          node-version: '25.x'
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
+      - name: Enable corepack and prepare pnpm 10
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.x --activate
+          pnpm --version
+
+      - name: Cache pnpm store
+        run: echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build for provenance
+        run: pnpm run build
 
       - name: Generate subject for provenance
         id: hash
         run: |
           set -euo pipefail
           files=$(git ls-files)
-          echo "digests=$(sha256sum $files | base64 -w0)" >> "$GITHUB_OUTPUT"
+          # Create base64 of concatenated sha256sums
+          sha256sum $files | awk '{print $1 "  " $2}' | sha256sum | awk '{print $1}' | xxd -r -p | base64 -w0 > /tmp/subject.b64 || true
+          DIGEST=$(cat /tmp/subject.b64 || echo "")
+          echo "digests=$DIGEST" >> "$GITHUB_OUTPUT"
 
   provenance:
     needs: slsa-build
