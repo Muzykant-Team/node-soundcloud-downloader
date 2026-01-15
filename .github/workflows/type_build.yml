@@ -68,8 +68,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
+      - name: Prepare pnpm lockfile
+        run: |
+          if [ ! -f pnpm-lock.yaml ]; then
+            echo "⚠️ pnpm-lock.yaml not found, generating..."
+            pnpm install --shamefully-hoist
+            git add pnpm-lock.yaml
+            git commit -m "chore: generate pnpm-lock.yaml [skip ci]" || true
+          else
+            echo "pnpm-lock.yaml exists, using frozen lockfile"
+          fi
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Run tests (optional, soft-fail)
         run: pnpm test
