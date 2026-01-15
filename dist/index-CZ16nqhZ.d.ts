@@ -574,12 +574,4 @@ declare const scdl: SCDL;
 declare const create: (options: SCDLOptions) => SCDL;
 //#endregion
 export { SCDL, SCDLError, SCDLErrorType, SCDLOptions, create, scdl as default };
-<<<<<<<< HEAD:dist/index-B6oL45cm.d.ts
-<<<<<<<< HEAD:dist/index-B6oL45cm.d.ts
-//# sourceMappingURL=index-B6oL45cm.d.ts.map
-========
-//# sourceMappingURL=index-CeV9jMC4.d.cts.map
->>>>>>>> 69d611d025ae6273d5b68274d6a99963e9fde1e1:dist/index-CeV9jMC4.d.cts
-========
-//# sourceMappingURL=index-CeV9jMC4.d.cts.map
->>>>>>>> 69d611d025ae6273d5b68274d6a99963e9fde1e1:dist/index-CeV9jMC4.d.cts
+//# sourceMappingURL=index-CZ16nqhZ.d.ts.map
