@@ -1,4 +1,4 @@
-import { Transcoding } from './info'
+import type { Transcoding } from './info'
 import FORMATS from './formats'
 import STREAMING_PROTOCOLS from './protocols'
 
@@ -13,18 +13,21 @@ const filterMedia = (
   predicate: FilterPredicateObject
 ): Transcoding[] => {
   return media.filter(({ format, snipped }) => {
+    // Odrzuć snippety
     if (snipped) {
       return false
     }
-
-    if (predicate.protocol && format.protocol !== predicate.protocol) {
+    
+    // Sprawdź protokół jeśli podany
+    if (predicate.protocol !== undefined && format.protocol !== predicate.protocol) {
       return false
     }
-
-    if (predicate.format && format.mime_type !== predicate.format) {
+    
+    // Sprawdź format jeśli podany
+    if (predicate.format !== undefined && format.mime_type !== predicate.format) {
       return false
     }
-
+    
     return true
   })
 }
