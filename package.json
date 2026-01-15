@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "docs": "typedoc && mkdir -p ./docs && touch ./docs/.nojekyll"
+    "docs": "typedoc && mkdir -p ./docs && touch ./docs/.nojekyll",
     "build": "tsdown src/index.ts --format esm,cjs --dts --minify --clean",
     "publish-script": "./publish.sh",
     "test": "jest --runInBand"
