@@ -1,4 +1,5 @@
-import { AxiosInstance } from 'axios'
+import axios from 'axios'
+import type { AxiosInstance } from 'axios' // tylko dla TS
 import type { User } from './info'
 import { appendURL, resolveURL } from './util'
 
@@ -8,13 +9,9 @@ export const getUser = async (
   clientID: string,
   axiosInstance: AxiosInstance
 ): Promise<User> => {
-  // Tworzymy poprawny URL z parametrami query
   const fullURL = appendURL(resolveURL, 'url', url, 'client_id', clientID)
-
-  // Pobranie danych
   const response = await axiosInstance.get<User>(fullURL)
 
-  // Walidacja odpowiedzi
   if (!response.data?.avatar_url) {
     throw new Error(`JSON response is not a user. Is profile URL correct? : ${url}`)
   }
