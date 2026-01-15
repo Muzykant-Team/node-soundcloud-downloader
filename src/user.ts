@@ -1,13 +1,23 @@
 import { AxiosInstance } from 'axios'
-import { User } from './info'
+import type { User } from './info'
 import { appendURL, resolveURL } from './util'
 
 /** @internal */
-export const getUser = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<User> => {
-  const u = appendURL(resolveURL, 'url', url, 'client_id', clientID)
-  const { data } = await axiosInstance.get(u)
+export const getUser = async (
+  url: string,
+  clientID: string,
+  axiosInstance: AxiosInstance
+): Promise<User> => {
+  // Tworzymy poprawny URL z parametrami query
+  const fullURL = appendURL(resolveURL, 'url', url, 'client_id', clientID)
 
-  if (!(data as User).avatar_url) throw new Error('JSON response is not a user. Is profile URL correct? : ' + url)
+  // Pobranie danych
+  const response = await axiosInstance.get<User>(fullURL)
 
-  return data as User
+  // Walidacja odpowiedzi
+  if (!response.data?.avatar_url) {
+    throw new Error(`JSON response is not a user. Is profile URL correct? : ${url}`)
+  }
+
+  return response.data
 }
