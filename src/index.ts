@@ -18,7 +18,30 @@ import { type PaginatedQuery } from './util'
 import { getLikes, type GetLikesOptions, type Like } from './likes'
 import { getUser } from './user'
 
-// Nowe typy błędów dla lepszej obsługi
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Default maximum number of retry attempts */
+const DEFAULT_MAX_RETRIES = 3
+/** Default delay between retries in milliseconds */
+const DEFAULT_RETRY_DELAY = 1000
+/** Default request timeout in milliseconds */
+const DEFAULT_TIMEOUT = 30000
+/** Client ID cache expiry time (24 hours) */
+const CLIENT_ID_EXPIRY_MS = 24 * 60 * 60 * 1000
+/** Minimum duration for sample track detection (ms) */
+const SAMPLE_DURATION_MIN = 29500
+/** Maximum duration for sample track detection (ms) */
+const SAMPLE_DURATION_MAX = 30500
+/** One hour in milliseconds */
+const ONE_HOUR_MS = 60 * 60 * 1000
+
+// ============================================================================
+// Error Types
+// ============================================================================
+
+/** Error types for better error handling */
 export enum SCDLErrorType {
   NETWORK_ERROR = 'NETWORK_ERROR',
   INVALID_URL = 'INVALID_URL',
@@ -33,11 +56,22 @@ export enum SCDLErrorType {
   RATE_LIMITED = 'RATE_LIMITED'
 }
 
+/**
+ * Extracts error message from unknown error type
+ * @internal
+ */
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  return String(error)
+}
+
+/** Custom error class with typed error information */
 export class SCDLError extends Error {
   public readonly type: SCDLErrorType
-  public readonly originalError?: Error
-  public readonly url?: string
-  public readonly retryAfter?: number
+  public readonly originalError: Error | undefined
+  public readonly url: string | undefined
+  public readonly retryAfter: number | undefined
 
   constructor(
     message: string,
@@ -52,9 +86,9 @@ export class SCDLError extends Error {
     this.originalError = originalError
     this.url = url
     this.retryAfter = retryAfter
-    
-    // Zachowaj stack trace
-    if (Error.captureStackTrace) {
+
+    // Maintain proper stack trace for V8 engines
+    if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, SCDLError)
     }
   }
@@ -77,9 +111,9 @@ const downloadFormat = async (url: string, clientID: string, format: FORMATS, ax
   } catch (error) {
     if (error instanceof SCDLError) throw error
     throw new SCDLError(
-      `Błąd podczas pobierania formatu: ${error.message}`,
+      `Błąd podczas pobierania formatu: ${getErrorMessage(error)}`,
       SCDLErrorType.NETWORK_ERROR,
-      error as Error,
+      error instanceof Error ? error : undefined,
       url
     )
   }
@@ -139,9 +173,9 @@ export class SCDL {
   stripMobilePrefix: boolean
   convertFirebaseLinks: boolean
 
-  constructor (options?: SCDLOptions) {
+  constructor(options?: SCDLOptions) {
     if (!options) options = {}
-    
+
     // Zachowaj starą logikę
     if (options.saveClientID) {
       this.saveClientID = options.saveClientID
@@ -187,7 +221,7 @@ export class SCDL {
     }
 
     const retryAfterStr = String(retryAfterHeader).trim()
-  
+
     // Sprawdź czy to liczba (sekundy)
     if (/^\d+$/.test(retryAfterStr)) {
       const seconds = parseInt(retryAfterStr, 10)
@@ -197,7 +231,7 @@ export class SCDL {
     // Sprawdź czy to data HTTP (RFC 7231)
     try {
       const retryDate = new Date(retryAfterStr)
-    
+
       // Sprawdź czy data jest poprawna
       if (isNaN(retryDate.getTime())) {
         console.warn(`Nieprawidłowy format retry-after: ${retryAfterStr}`)
@@ -206,19 +240,19 @@ export class SCDL {
 
       const now = new Date()
       const delayMs = retryDate.getTime() - now.getTime()
-    
+
       // Jeśli data jest w przeszłości lub za daleko w przyszłości (>1h), użyj domyślnego delay
       if (delayMs <= 0) {
         console.warn(`Retry-after data w przeszłości: ${retryAfterStr}`)
         return this._retryDelay
       }
-    
+
       const oneHourMs = 60 * 60 * 1000
       if (delayMs > oneHourMs) {
         console.warn(`Retry-after data zbyt daleko w przyszłości: ${retryAfterStr}, używam 1 godziny`)
         return oneHourMs
       }
-  
+
       return delayMs
     } catch (error) {
       console.warn(`Błąd parsowania retry-after jako data: ${retryAfterStr}`, error)
@@ -277,7 +311,7 @@ export class SCDL {
             )
           }
         }
-      
+
         if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
           throw new SCDLError(
             'Przekroczono limit czasu żądania.',
@@ -286,7 +320,7 @@ export class SCDL {
             error.config?.url
           )
         }
-      
+
         if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
           throw new SCDLError(
             'Nie można połączyć się z serwerem SoundCloud.',
@@ -295,9 +329,9 @@ export class SCDL {
             error.config?.url
           )
         }
-      
+
         throw new SCDLError(
-          `Błąd sieci: ${error.message}`,
+          `Błąd sieci: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error,
           error.config?.url
@@ -326,7 +360,7 @@ export class SCDL {
         return await operation()
       } catch (error) {
         retryConfig.currentAttempt++
-        
+
         if (error instanceof SCDLError) {
           // Niektóre błędy nie powinny być retryowane
           if ([
@@ -397,7 +431,7 @@ export class SCDL {
     } catch (error) {
       if (error instanceof SCDLError) throw error
       throw new SCDLError(
-        `Błąd podczas walidacji URL dla operacji ${operation}: ${error.message}`,
+        `Błąd podczas walidacji URL dla operacji ${operation}: ${getErrorMessage(error)}`,
         SCDLErrorType.INVALID_URL,
         error as Error,
         url
@@ -411,12 +445,12 @@ export class SCDL {
    * @param predicateObj - The desired Transcoding object to match
    * @returns An array of Transcodings that match the predicate object
    */
-  filterMedia (media: Transcoding[], predicateObj: FilterPredicateObject) {
+  filterMedia(media: Transcoding[], predicateObj: FilterPredicateObject) {
     try {
       return filterMedia(media, predicateObj)
     } catch (error) {
       throw new SCDLError(
-        `Błąd podczas filtrowania mediów: ${error.message}`,
+        `Błąd podczas filtrowania mediów: ${getErrorMessage(error)}`,
         SCDLErrorType.PARSING_ERROR,
         error as Error
       )
@@ -430,14 +464,14 @@ export class SCDL {
    * @param useDirectLink - Whether or not to use the download link if the artist has set the track to be downloadable. This has erratic behaviour on some environments.
    * @returns A ReadableStream containing the audio data
   */
-  async download (url: string, useDirectLink = true) {
+  async download(url: string, useDirectLink = true) {
     return this._withRetry(async () => {
       this._validateUrl(url, 'download')
-      
+
       try {
         // POBIERZ INFO O TRACKU
         const info = await this.getInfo(url)
-        
+
         // ODRZUĆ SAMPLE ~30s (+/- 0.6s) I OGRANICZENIA REGIONALNE
         if (
           typeof info.duration === 'number' &&
@@ -451,7 +485,7 @@ export class SCDL {
             url
           )
         }
-        
+
         if ('region_restricted' in info && info.region_restricted === true) {
           throw new SCDLError(
             'Ten utwór jest niedostępny w Twoim regionie!',
@@ -460,7 +494,7 @@ export class SCDL {
             url
           )
         }
-        
+
         if (info.streamable !== true) {
           throw new SCDLError(
             'Nie można streamować tego utworu!',
@@ -469,14 +503,14 @@ export class SCDL {
             url
           )
         }
-        
+
         // Jeśli przeszedł checki, pobieraj!
         const preparedUrl = await this.prepareURL(url)
         return download(preparedUrl, await this.getClientID(), this.axios, useDirectLink)
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania utworu: ${error.message}`,
+          `Błąd podczas pobierania utworu: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error,
           url
@@ -490,17 +524,17 @@ export class SCDL {
    * @param url - The URL of the Soundcloud track
    * @param format - The desired format
   */
-  async downloadFormat (url: string, format: FORMATS) {
+  async downloadFormat(url: string, format: FORMATS) {
     return this._withRetry(async () => {
       this._validateUrl(url, 'downloadFormat')
-      
+
       try {
         const preparedUrl = await this.prepareURL(url)
         return downloadFormat(preparedUrl, await this.getClientID(), format, this.axios)
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania formatu ${format}: ${error.message}`,
+          `Błąd podczas pobierania formatu ${format}: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error,
           url
@@ -514,17 +548,17 @@ export class SCDL {
    * @param url - URL of the Soundcloud track
    * @returns Info about the track
   */
-  async getInfo (url: string) {
+  async getInfo(url: string) {
     return this._withRetry(async () => {
       this._validateUrl(url, 'getInfo')
-      
+
       try {
         const preparedUrl = await this.prepareURL(url)
         return getInfo(preparedUrl, await this.getClientID(), this.axios)
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania informacji o utworze: ${error.message}`,
+          `Błąd podczas pobierania informacji o utworze: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error,
           url
@@ -538,7 +572,7 @@ export class SCDL {
    * @param ids - The ID(s) of the tracks
    * @returns Info about the track
    */
-  async getTrackInfoByID (ids: number[], playlistID?: number, playlistSecretToken?: string) {
+  async getTrackInfoByID(ids: number[], playlistID?: number, playlistSecretToken?: string) {
     return this._withRetry(async () => {
       try {
         if (!Array.isArray(ids) || ids.length === 0) {
@@ -552,7 +586,7 @@ export class SCDL {
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania informacji o utworach po ID: ${error.message}`,
+          `Błąd podczas pobierania informacji o utworach po ID: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error
         )
@@ -565,17 +599,17 @@ export class SCDL {
    * @param url - URL of the Soundcloud set
    * @returns Info about the set
    */
-  async getSetInfo (url: string) {
+  async getSetInfo(url: string) {
     return this._withRetry(async () => {
       this._validateUrl(url, 'getSetInfo')
-      
+
       try {
         const preparedUrl = await this.prepareURL(url)
         return getSetInfo(preparedUrl, await this.getClientID(), this.axios)
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania informacji o secie: ${error.message}`,
+          `Błąd podczas pobierania informacji o secie: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error,
           url
@@ -589,7 +623,7 @@ export class SCDL {
    * @param options - The search option
    * @returns SearchResponse
    */
-  async search (options: SearchOptions) {
+  async search(options: SearchOptions) {
     return this._withRetry(async () => {
       try {
         if (!options || (!options.q && !options.query)) {
@@ -603,7 +637,7 @@ export class SCDL {
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas wyszukiwania: ${error.message}`,
+          `Błąd podczas wyszukiwania: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error
         )
@@ -617,7 +651,7 @@ export class SCDL {
    * @param limit - The number of results to return
    * @param offset - Used for pagination, set to 0 if you will not use this feature.
    */
-  async related (id: number, limit: number, offset = 0) {
+  async related(id: number, limit: number, offset = 0) {
     return this._withRetry(async () => {
       try {
         if (!Number.isInteger(id) || id <= 0) {
@@ -638,7 +672,7 @@ export class SCDL {
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania powiązanych utworów: ${error.message}`,
+          `Błąd podczas pobierania powiązanych utworów: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error
         )
@@ -650,10 +684,10 @@ export class SCDL {
    * Returns the audio streams and titles of the tracks in the given playlist.
    * @param url - The url of the playlist
    */
-  async downloadPlaylist (url: string): Promise<[ReadableStream<any>[], String[]]> {
+  async downloadPlaylist(url: string): Promise<[ReadableStream<any>[], String[]]> {
     return this._withRetry(async () => {
       this._validateUrl(url, 'downloadPlaylist')
-      
+
       try {
         if (!this.isPlaylistURL(url)) {
           throw new SCDLError(
@@ -669,7 +703,7 @@ export class SCDL {
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania playlisty: ${error.message}`,
+          `Błąd podczas pobierania playlisty: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error,
           url
@@ -683,12 +717,12 @@ export class SCDL {
    * @param options - Can either be the profile URL of the user, or their ID
    * @returns - An array of tracks
    */
-  async getLikes (options: GetLikesOptions): Promise<PaginatedQuery<Like>> {
+  async getLikes(options: GetLikesOptions): Promise<PaginatedQuery<Like>> {
     return this._withRetry(async () => {
       try {
         let id: number
         const clientID = await this.getClientID()
-        
+
         if (options.id) {
           id = options.id
         } else if (options.profileUrl) {
@@ -703,13 +737,13 @@ export class SCDL {
             SCDLErrorType.INVALID_URL
           )
         }
-        
+
         options.id = id
         return getLikes(options, clientID, this.axios)
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania polubień: ${error.message}`,
+          `Błąd podczas pobierania polubień: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error
         )
@@ -721,17 +755,17 @@ export class SCDL {
    * Returns information about a user
    * @param url - The profile URL of the user
    */
-  async getUser (url: string): Promise<User> {
+  async getUser(url: string): Promise<User> {
     return this._withRetry(async () => {
       this._validateUrl(url, 'getUser')
-      
+
       try {
         const preparedUrl = await this.prepareURL(url)
         return getUser(preparedUrl, await this.getClientID(), this.axios)
       } catch (error) {
         if (error instanceof SCDLError) throw error
         throw new SCDLError(
-          `Błąd podczas pobierania informacji o użytkowniku: ${error.message}`,
+          `Błąd podczas pobierania informacji o użytkowniku: ${getErrorMessage(error)}`,
           SCDLErrorType.NETWORK_ERROR,
           error as Error,
           url
@@ -744,7 +778,7 @@ export class SCDL {
    * Sets the instance of Axios to use to make requests to SoundCloud API
    * @param instance - An instance of Axios
    */
-  setAxiosInstance (instance: AxiosInstance) {
+  setAxiosInstance(instance: AxiosInstance) {
     this.axios = instance
     this._setupAxiosInterceptors()
   }
@@ -753,7 +787,7 @@ export class SCDL {
    * Returns whether or not the given URL is a valid Soundcloud URL
    * @param url - URL of the Soundcloud track
   */
-  isValidUrl (url: string) {
+  isValidUrl(url: string) {
     try {
       return isValidURL(url, this.convertFirebaseLinks, this.stripMobilePrefix)
     } catch (error) {
@@ -765,7 +799,7 @@ export class SCDL {
    * Returns whether or not the given URL is a valid playlist SoundCloud URL
    * @param url - The URL to check
    */
-  isPlaylistURL (url: string) {
+  isPlaylistURL(url: string) {
     try {
       return isPlaylistURL(url)
     } catch (error) {
@@ -777,7 +811,7 @@ export class SCDL {
    * Returns true if the given URL is a personalized track URL. (of the form https://soundcloud.com/discover/sets/personalized-tracks::user-sdlkfjsldfljs:847104873)
    * @param url - The URL to check
    */
-  isPersonalizedTrackURL (url: string) {
+  isPersonalizedTrackURL(url: string) {
     try {
       return isPersonalizedTrackURL(url)
     } catch (error) {
@@ -789,7 +823,7 @@ export class SCDL {
    * Returns true if the given URL is a Firebase URL (of the form https://soundcloud.app.goo.gl/XXXXXXXX)
    * @param url - The URL to check
    */
-  isFirebaseURL (url: string) {
+  isFirebaseURL(url: string) {
     try {
       return isFirebaseURL(url)
     } catch (error) {
@@ -797,7 +831,7 @@ export class SCDL {
     }
   }
 
-  async getClientID (): Promise<string> {
+  async getClientID(): Promise<string> {
     try {
       if (!this._clientID) {
         await this.setClientID()
@@ -814,7 +848,7 @@ export class SCDL {
     } catch (error) {
       if (error instanceof SCDLError) throw error
       throw new SCDLError(
-        `Błąd podczas pobierania Client ID: ${error.message}`,
+        `Błąd podczas pobierania Client ID: ${getErrorMessage(error)}`,
         SCDLErrorType.CLIENT_ID_ERROR,
         error as Error
       )
@@ -822,7 +856,7 @@ export class SCDL {
   }
 
   /** @internal */
-  async setClientID (clientID?: string): Promise<string> {
+  async setClientID(clientID?: string): Promise<string> {
     try {
       if (!clientID) {
         if (!this._clientID) {
@@ -835,7 +869,7 @@ export class SCDL {
                 clientID: this._clientID,
                 date: new Date().toISOString()
               }
-              
+
               try {
                 await fs.promises.writeFile(filename, JSON.stringify(data))
               } catch (err) {
@@ -849,6 +883,13 @@ export class SCDL {
           }
         }
 
+        if (!this._clientID) {
+          throw new SCDLError(
+            'Nie ma ustawionego Client ID.',
+            SCDLErrorType.CLIENT_ID_ERROR
+          )
+        }
+
         return this._clientID
       }
 
@@ -856,7 +897,7 @@ export class SCDL {
       return clientID
     } catch (error) {
       throw new SCDLError(
-        `Błąd podczas ustawiania Client ID: ${error.message}`,
+        `Błąd podczas ustawiania Client ID: ${getErrorMessage(error)}`,
         SCDLErrorType.CLIENT_ID_ERROR,
         error as Error
       )
@@ -864,69 +905,73 @@ export class SCDL {
   }
 
   /** @internal */
-  private async _getClientIDFromFile (filename: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!fs.existsSync(filename)) return resolve('')
+  private async _getClientIDFromFile(filename: string): Promise<string> {
+    // Check if file exists
+    if (!fs.existsSync(filename)) return ''
 
-      fs.readFile(filename, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
-        if (err) return reject(new SCDLError(
-          `Błąd czytania pliku client_id.json: ${err.message}`,
-          SCDLErrorType.FILE_SYSTEM_ERROR,
-          err
-        ))
-        
-        let c: ClientIDData
-        try {
-          c = JSON.parse(data)
-        } catch (parseErr) {
-          return reject(new SCDLError(
-            'Błąd parsowania client_id.json',
-            SCDLErrorType.PARSING_ERROR,
-            parseErr as Error
-          ))
-        }
-        
-        if (!c.date || !c.clientID) {
-          return reject(new SCDLError(
-            "Brakuje właściwości 'date' lub 'clientID' w client_id.json",
-            SCDLErrorType.PARSING_ERROR
-          ))
-        }
-        
-        if (typeof c.clientID !== 'string') {
-          return reject(new SCDLError(
-            "Właściwość 'clientID' nie jest stringiem w client_id.json",
-            SCDLErrorType.PARSING_ERROR
-          ))
-        }
-        
-        if (typeof c.date !== 'string') {
-          return reject(new SCDLError(
-            "Właściwość 'date' nie jest stringiem w client_id.json",
-            SCDLErrorType.PARSING_ERROR
-          ))
-        }
-        
-        const d = new Date(c.date)
-        if (Number.isNaN(d.getTime())) {
-          return reject(new SCDLError(
-            "Nieprawidłowy obiekt daty z 'date' w client_id.json",
-            SCDLErrorType.PARSING_ERROR
-          ))
-        }
-        
-        const dayMs = 60 * 60 * 24 * 1000
-        if (new Date().getTime() - d.getTime() >= dayMs) {
-          // Starszy niż dzień, usuń
-          fs.unlink(filename, err => {
-            if (err) console.warn('Nie można usunąć client_id.json: ' + err)
-          })
-          return resolve('')
-        } else {
-          return resolve(c.clientID)
-        }
-      })
-    })
+    try {
+      const data = await fs.promises.readFile(filename, 'utf8')
+
+      let parsed: ClientIDData
+      try {
+        parsed = JSON.parse(data)
+      } catch (parseErr) {
+        throw new SCDLError(
+          'Błąd parsowania client_id.json',
+          SCDLErrorType.PARSING_ERROR,
+          parseErr instanceof Error ? parseErr : undefined
+        )
+      }
+
+      // Validate required properties
+      if (!parsed.date || !parsed.clientID) {
+        throw new SCDLError(
+          "Brakuje właściwości 'date' lub 'clientID' w client_id.json",
+          SCDLErrorType.PARSING_ERROR
+        )
+      }
+
+      if (typeof parsed.clientID !== 'string') {
+        throw new SCDLError(
+          "Właściwość 'clientID' nie jest stringiem w client_id.json",
+          SCDLErrorType.PARSING_ERROR
+        )
+      }
+
+      if (typeof parsed.date !== 'string') {
+        throw new SCDLError(
+          "Właściwość 'date' nie jest stringiem w client_id.json",
+          SCDLErrorType.PARSING_ERROR
+        )
+      }
+
+      // Validate date
+      const cachedDate = new Date(parsed.date)
+      if (Number.isNaN(cachedDate.getTime())) {
+        throw new SCDLError(
+          "Nieprawidłowy obiekt daty z 'date' w client_id.json",
+          SCDLErrorType.PARSING_ERROR
+        )
+      }
+
+      // Check if cache expired (older than 24 hours)
+      if (Date.now() - cachedDate.getTime() >= CLIENT_ID_EXPIRY_MS) {
+        // Delete expired cache file
+        fs.promises.unlink(filename).catch(() => {
+          // Ignore unlink errors
+        })
+        return ''
+      }
+
+      return parsed.clientID
+    } catch (error) {
+      if (error instanceof SCDLError) throw error
+      throw new SCDLError(
+        `Błąd czytania pliku client_id.json: ${getErrorMessage(error)}`,
+        SCDLErrorType.FILE_SYSTEM_ERROR,
+        error instanceof Error ? error : undefined
+      )
+    }
   }
 
   /**
@@ -934,14 +979,14 @@ export class SCDL {
    * and converting it to a regular URL (if this.convertFireBaseLinks is true.)
    * @param url
    */
-  async prepareURL (url: string): Promise<string> {
+  async prepareURL(url: string): Promise<string> {
     try {
       let processedUrl = url
-      
+
       if (this.stripMobilePrefix) {
         processedUrl = stripMobilePrefix(processedUrl)
       }
-      
+
       if (this.convertFirebaseLinks && isFirebaseURL(processedUrl)) {
         const converted = await convertFirebaseURL(processedUrl, this.axios)
         if (!converted) {
@@ -949,7 +994,7 @@ export class SCDL {
             'Nie można przekonwertować Firebase URL na prawidłowy link SoundCloud.',
             SCDLErrorType.INVALID_URL,
             undefined,
-            url
+            processedUrl
           )
         }
         processedUrl = converted
@@ -959,7 +1004,7 @@ export class SCDL {
     } catch (error) {
       if (error instanceof SCDLError) throw error
       throw new SCDLError(
-        `Błąd podczas przygotowywania URL: ${error.message}`,
+        `Błąd podczas przygotowywania URL: ${getErrorMessage(error)}`,
         SCDLErrorType.INVALID_URL,
         error as Error,
         url
@@ -993,19 +1038,19 @@ export class SCDL {
   async healthCheck(): Promise<{ status: 'ok' | 'error', clientID?: string, error?: string }> {
     try {
       const clientID = await this.getClientID()
-      
+
       // Prosta próba zapytania do API
       const testUrl = 'https://soundcloud.com/mt-eden/still-alive'
       await this.getInfo(testUrl)
-      
-      return { 
-        status: 'ok', 
+
+      return {
+        status: 'ok',
         clientID: clientID.substring(0, 8) + '...' // Pokaż tylko początek dla bezpieczeństwa
       }
     } catch (error) {
-      return { 
-        status: 'error', 
-        error: error instanceof SCDLError ? error.message : (error as Error).message 
+      return {
+        status: 'error',
+        error: error instanceof SCDLError ? error.message : (error as Error).message
       }
     }
   }
@@ -1020,7 +1065,7 @@ export class SCDL {
         SCDLErrorType.INVALID_URL
       )
     }
-    
+
     if (!Number.isInteger(retryDelay) || retryDelay < 0) {
       throw new SCDLError(
         'retryDelay musi być nieujemną liczbą całkowitą.',
@@ -1085,7 +1130,7 @@ const scdl = new SCDL()
 // Creates an instance of SCDL with custom configuration
 const create = (options: SCDLOptions): SCDL => new SCDL(options)
 
-export { create, SCDLErrorType }
+export { create }
 
 scdl.STREAMING_PROTOCOLS = _PROTOCOLS
 scdl.FORMATS = _FORMATS

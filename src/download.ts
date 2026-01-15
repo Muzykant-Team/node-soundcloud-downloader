@@ -102,7 +102,7 @@ export const download = async (url: string, clientID: string, axiosInstance: Axi
   }
 
   // Ulepszone wybieranie najlepszego transcoding
-  const availableTranscodings = info.media.transcodings.filter(t =>
+  const availableTranscodings = info.media.transcodings.filter((t: Transcoding) =>
     validateMedia(t) &&
     t.url &&
     t.format &&
@@ -114,7 +114,7 @@ export const download = async (url: string, clientID: string, axiosInstance: Axi
   }
 
   // Preferuj progressive nad HLS (lepiej działa z Discord)
-  const preferredTranscoding = availableTranscodings.find(t =>
+  const preferredTranscoding = availableTranscodings.find((t: Transcoding) =>
     t.format.protocol === 'progressive'
   ) || availableTranscodings[0]
 
