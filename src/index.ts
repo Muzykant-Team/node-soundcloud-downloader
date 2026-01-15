@@ -1,21 +1,21 @@
 import sckey from 'soundcloud-key-fetch'
 
-import getInfo, { getSetInfo, Transcoding, getTrackInfoByID, TrackInfo, User } from './info'
-import filterMedia, { FilterPredicateObject } from './filter-media'
+import getInfo, { getSetInfo, getTrackInfoByID, type Transcoding, type TrackInfo, type User } from './info'
+import filterMedia, { type FilterPredicateObject } from './filter-media'
 import { download, fromMediaObj } from './download'
 
 import isValidURL, { convertFirebaseURL, isFirebaseURL, isPersonalizedTrackURL, isPlaylistURL, stripMobilePrefix } from './url'
 
 import STREAMING_PROTOCOLS, { _PROTOCOLS } from './protocols'
 import FORMATS, { _FORMATS } from './formats'
-import { search, related, SoundcloudResource, SearchOptions } from './search'
+import { search, related, type SoundcloudResource, type SearchOptions } from './search'
 import { downloadPlaylist } from './download-playlist'
 import axios, { AxiosInstance, AxiosError } from 'axios'
 
 import * as path from 'path'
 import * as fs from 'fs'
-import { PaginatedQuery } from './util'
-import { GetLikesOptions, getLikes, Like } from './likes'
+import { type PaginatedQuery } from './util'
+import { getLikes, type GetLikesOptions, type Like } from './likes'
 import { getUser } from './user'
 
 // Nowe typy błędów dla lepszej obsługi
@@ -868,7 +868,7 @@ export class SCDL {
     return new Promise((resolve, reject) => {
       if (!fs.existsSync(filename)) return resolve('')
 
-      fs.readFile(filename, 'utf8', (err: NodeJS.ErrnoException, data: string) => {
+      fs.readFile(filename, 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
         if (err) return reject(new SCDLError(
           `Błąd czytania pliku client_id.json: ${err.message}`,
           SCDLErrorType.FILE_SYSTEM_ERROR,
@@ -880,7 +880,7 @@ export class SCDL {
           c = JSON.parse(data)
         } catch (parseErr) {
           return reject(new SCDLError(
-            'Błąd parsowania client_id.json',
+'Błąd parsowania client_id.json',
             SCDLErrorType.PARSING_ERROR,
             parseErr as Error
           ))
@@ -943,11 +943,21 @@ export class SCDL {
       }
       
       if (this.convertFirebaseLinks && isFirebaseURL(processedUrl)) {
-        processedUrl = await convertFirebaseURL(processedUrl, this.axios)
+        const converted = await convertFirebaseURL(processedUrl, this.axios)
+        if (!converted) {
+          throw new SCDLError(
+            'Nie można przekonwertować Firebase URL na prawidłowy link SoundCloud.',
+            SCDLErrorType.INVALID_URL,
+            undefined,
+            url
+          )
+        }
+        processedUrl = converted
       }
 
       return processedUrl
     } catch (error) {
+      if (error instanceof SCDLError) throw error
       throw new SCDLError(
         `Błąd podczas przygotowywania URL: ${error.message}`,
         SCDLErrorType.INVALID_URL,
@@ -995,7 +1005,7 @@ export class SCDL {
     } catch (error) {
       return { 
         status: 'error', 
-        error: error instanceof SCDLError ? error.message : error.message 
+        error: error instanceof SCDLError ? error.message : (error as Error).message 
       }
     }
   }
