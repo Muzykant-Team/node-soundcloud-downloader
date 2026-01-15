@@ -131,6 +131,7 @@ interface SearchOptions {
   resourceType?: SoundcloudResource | 'all';
   query?: string;
   nextHref?: string;
+  q?: string;
 }
 type SoundcloudResource = 'tracks' | 'users' | 'albums' | 'playlists';
 //#endregion
@@ -376,4 +377,4 @@ declare const scdl: SCDL;
 declare const create: (options: SCDLOptions) => SCDL;
 //#endregion
 export { SCDL, SCDLError, SCDLErrorType, SCDLOptions, create, scdl as default };
-//# sourceMappingURL=index-1b5VjKUl.d.ts.map
+//# sourceMappingURL=index-ziY8syRJ.d.ts.map
