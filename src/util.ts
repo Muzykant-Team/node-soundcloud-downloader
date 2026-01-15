@@ -1,7 +1,6 @@
 /** @internal @packageDocumentation */
 import { URL } from 'url'
 import { AxiosError, isAxiosError } from 'axios'
-
 /* eslint-disable camelcase */
 export interface PaginatedQuery<T> {
   collection: T[],
@@ -9,9 +8,7 @@ export interface PaginatedQuery<T> {
   next_href: string,
   query_urn: string
 }
-
 export const resolveURL = 'https://api-v2.soundcloud.com/resolve'
-
 export const handleRequestErrs = (err: unknown): Error => {
   // Obsługa błędów nie-Axios
   if (!isAxiosError(err)) {
@@ -20,25 +17,23 @@ export const handleRequestErrs = (err: unknown): Error => {
     }
     return new Error('Unknown error occurred', { cause: err });
   }
-
   const axiosErr = err as AxiosError;
   
   // Brak odpowiedzi - problemy sieciowe
   if (!axiosErr.response) {
     // Obsługa obu kodów timeout: ECONNABORTED i ETIMEDOUT
-    const message = axiosErr.code === 'ECONNABORTED' || axiosErr.code === 'ETIMEDOUT'
+    const code = axiosErr.code;
+    const message = code === 'ECONNABORTED' || code === 'ETIMEDOUT'
       ? 'Request timeout. Please check your connection.'
-      : axiosErr.code === 'ERR_NETWORK'
+      : code === 'ERR_NETWORK'
       ? 'Network error. Please check your internet connection.'
-      : axiosErr.code === 'ERR_CANCELED'
+      : code === 'ERR_CANCELED'
       ? 'Request was canceled.'
       : 'Request failed. Please try again.';
     return new Error(message, { cause: axiosErr });
   }
-
   const status = axiosErr.response.status;
-  let descriptiveMessage = axiosErr.message;
-
+  let descriptiveMessage: string;
   switch (status) {
     case 400:
       descriptiveMessage = 'Bad request. Please check the parameters.';
@@ -64,10 +59,8 @@ export const handleRequestErrs = (err: unknown): Error => {
     default:
       descriptiveMessage = `Request failed with status ${status}: ${axiosErr.message}`;
   }
-
   return new Error(descriptiveMessage, { cause: axiosErr });
 }
-
 export const appendURL = (url: string, ...params: string[]): string => {
   try {
     const u = new URL(url);
@@ -78,7 +71,6 @@ export const appendURL = (url: string, ...params: string[]): string => {
         `Parameters must be provided in key-value pairs. Received ${params.length} parameters.`
       );
     }
-
     for (let idx = 0; idx < params.length; idx += 2) {
       const key = params[idx];
       const value = params[idx + 1];
@@ -96,16 +88,14 @@ export const appendURL = (url: string, ...params: string[]): string => {
     throw err;
   }
 }
-
 export const extractIDFromPersonalizedTrackURL = (url: string): string => {
   if (!url || typeof url !== 'string') return '';
   if (!url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) return '';
   
-  const split = url.split(':');
-  if (split.length < 5) return '';
+  const colonIndex = url.lastIndexOf(':');
+  if (colonIndex === -1) return '';
   
-  return split[4] || '';
+  return url.slice(colonIndex + 1);
 }
-
 export const kindMismatchError = (expected: string, received: string): Error => 
   new Error(`Expected resource of kind: (${expected}), received: (${received})`);
