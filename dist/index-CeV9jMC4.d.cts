@@ -117,8 +117,8 @@ interface FilterPredicateObject {
 }
 //#endregion
 //#region src/util.d.ts
-interface PaginatedQuery<T$1> {
-  collection: T$1[];
+interface PaginatedQuery<T> {
+  collection: T[];
   total_results?: number;
   next_href: string;
   query_urn: string;
@@ -377,4 +377,4 @@ declare const scdl: SCDL;
 declare const create: (options: SCDLOptions) => SCDL;
 //#endregion
 export { SCDL, SCDLError, SCDLErrorType, SCDLOptions, create, scdl as default };
-//# sourceMappingURL=index-pkf8qmIc.d.cts.map
+//# sourceMappingURL=index-CeV9jMC4.d.cts.map
