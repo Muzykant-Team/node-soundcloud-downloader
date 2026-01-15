@@ -688,8 +688,4 @@ declare const scdl: SCDL;
 declare const create: (options: SCDLOptions) => SCDL;
 //#endregion
 export { SCDL, SCDLError, SCDLErrorType, SCDLOptions, create, scdl as default };
-<<<<<<<< Updated upstream:dist/index-D7m7tNNw.d.cts
-//# sourceMappingURL=index-D7m7tNNw.d.cts.map
-========
-//# sourceMappingURL=index-Dakr5RhF.d.cts.map
->>>>>>>> Stashed changes:dist/index-Dakr5RhF.d.cts
+//# sourceMappingURL=index-BdSuBmbq.d.cts.map
