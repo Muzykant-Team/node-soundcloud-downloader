@@ -118,7 +118,7 @@ export interface Transcoding {
 const getTrackInfoBase = async (clientID: string, axiosRef: AxiosInstance, ids: number[], playlistID?: number, playlistSecretToken?: string): Promise<TrackInfo[]> => {
   let url = appendURL('https://api-v2.soundcloud.com/tracks', 'ids', ids.join(','), 'client_id', clientID)
   if (playlistID && playlistSecretToken) {
-    url = appendURL(url, 'playlistId', '' + playlistID, 'playlistSecretToken', playlistSecretToken)
+    url = appendURL(url, 'playlistId', String(playlistID), 'playlistSecretToken', playlistSecretToken)
   }
   try {
     const { data } = await axiosRef.get(url)
@@ -145,75 +145,78 @@ export const getInfoBase = async <T extends TrackInfo | SetInfo>(url: string, cl
 /** @internal */
 const getSetInfoBase = async (url: string, clientID: string, axiosRef: AxiosInstance): Promise<SetInfo> => {
   const setInfo = await getInfoBase<SetInfo>(url, clientID, axiosRef)
-  const temp = [...setInfo.tracks].map(track => track.id)
+  const originalOrder = setInfo.tracks.map(track => track.id)
   const playlistID = setInfo.id
   const playlistSecretToken = setInfo.secret_token
   const incompleteTracks = setInfo.tracks.filter(track => !track.title)
+  
   if (incompleteTracks.length === 0) {
     return setInfo
   }
+  
   const completeTracks = setInfo.tracks.filter(track => track.title)
-
-  const ids = incompleteTracks.map(t => t.id)
-  if (ids.length > 50) {
-    const splitIds = []
-    for (let x = 0; x <= Math.floor(ids.length / 50); x++) {
-      splitIds.push([])
+  const incompleteIds = incompleteTracks.map(t => t.id)
+  
+  if (incompleteIds.length > 50) {
+    const batchSize = 50
+    const batches: number[][] = []
+    
+    for (let i = 0; i < incompleteIds.length; i += batchSize) {
+      batches.push(incompleteIds.slice(i, i + batchSize))
     }
 
-    for (let x = 0; x < ids.length; x++) {
-      const i = Math.floor(x / 50)
-      splitIds[i].push(ids[x])
-    }
-
-    const promises = splitIds.map(async ids => await getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken))
-    const info = await Promise.all(promises)
-    setInfo.tracks = completeTracks.concat(...info)
-    setInfo.tracks = sortTracks(setInfo.tracks, temp)
-    return setInfo
+    const promises = batches.map(ids => getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken))
+    const fetchedTracks = await Promise.all(promises)
+    setInfo.tracks = completeTracks.concat(...fetchedTracks)
+  } else {
+    const fetchedTracks = await getTrackInfoByID(clientID, axiosRef, incompleteIds, playlistID, playlistSecretToken)
+    setInfo.tracks = completeTracks.concat(fetchedTracks)
   }
-  const info = await getTrackInfoByID(clientID, axiosRef, ids, playlistID, playlistSecretToken)
-
-  setInfo.tracks = completeTracks.concat(info)
-  setInfo.tracks = sortTracks(setInfo.tracks, temp)
+  
+  setInfo.tracks = sortTracks(setInfo.tracks, originalOrder)
   return setInfo
 }
 
 /** @internal */
 const sortTracks = (tracks: TrackInfo[], ids: number[]): TrackInfo[] => {
-  for (let i = 0; i < ids.length; i++) {
-    if (tracks[i].id !== ids[i]) {
-      for (let j = 0; j < tracks.length; j++) {
-        if (tracks[j].id === ids[i]) {
-          const temp = tracks[i]
-          tracks[i] = tracks[j]
-          tracks[j] = temp
-        }
-      }
+  const trackMap = new Map<number, TrackInfo>()
+  
+  for (const track of tracks) {
+    trackMap.set(track.id, track)
+  }
+  
+  const sorted: TrackInfo[] = []
+  for (const id of ids) {
+    const track = trackMap.get(id)
+    if (track) {
+      sorted.push(track)
     }
   }
-
-  return tracks
+  
+  return sorted
 }
 
 /** @internal */
 const getInfo = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<TrackInfo> => {
-  let data
+  let data: TrackInfo
+  
   if (url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) {
     const idString = extractIDFromPersonalizedTrackURL(url)
     if (!idString) throw new Error('Could not parse track ID from given URL: ' + url)
-    let id: number
-    try {
-      id = parseInt(idString)
-    } catch (err) {
+    
+    const id = parseInt(idString, 10)
+    if (isNaN(id)) {
       throw new Error('Could not parse track ID from given URL: ' + url)
     }
 
-    data = (await getTrackInfoByID(clientID, axiosInstance, [id]))[0]
-    if (!data) throw new Error('Could not find track with ID: ' + id)
+    const tracks = await getTrackInfoByID(clientID, axiosInstance, [id])
+    const track = tracks[0]
+    if (!track) throw new Error('Could not find track with ID: ' + id)
+    data = track
   } else {
     data = await getInfoBase<TrackInfo>(url, clientID, axiosInstance)
   }
+  
   if (!data.media) throw new Error('The given URL does not link to a Soundcloud track')
   return data
 }
