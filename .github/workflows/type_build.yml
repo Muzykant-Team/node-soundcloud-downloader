@@ -56,28 +56,24 @@ jobs:
           corepack prepare pnpm@10.x --activate
           pnpm --version
 
-      - name: Cache pnpm store
-        id: cache-pnpm
-        run: echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
-
-      - name: Restore pnpm store cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.PNPM_STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: Prepare pnpm lockfile
+      - name: Prepare pnpm lockfile if missing
         run: |
           if [ ! -f pnpm-lock.yaml ]; then
-            echo "⚠️ pnpm-lock.yaml not found, generating..."
+            echo "⚠️ pnpm-lock.yaml missing, generating..."
             pnpm install --shamefully-hoist
             git add pnpm-lock.yaml
             git commit -m "chore: generate pnpm-lock.yaml [skip ci]" || true
           else
             echo "pnpm-lock.yaml exists, using frozen lockfile"
           fi
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v5
+        with:
+          path: $(pnpm store path)
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: |
@@ -109,11 +105,8 @@ jobs:
       - name: Generate TypeDoc
         run: |
           mkdir -p docs
-          if pnpm run | grep -q "docs"; then
-            pnpm run docs --if-present
-          else
-            pnpm exec typedoc --options typedoc.json --out docs
-          fi
+          pnpm exec typedoc --options typedoc.json --out docs
+          touch docs/.nojekyll
 
       - name: Commit docs (master only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -130,7 +123,6 @@ jobs:
       - name: Push changes
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          # push only if there are commits not on origin
           if git rev-parse --verify origin/${{ github.ref_name }} >/dev/null 2>&1; then
             if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
               git push origin HEAD:${{ github.ref_name }}
@@ -138,7 +130,6 @@ jobs:
               echo "Nothing to push"
             fi
           else
-            # branch not present on origin (rare); push anyway
             git push origin HEAD:${{ github.ref_name }}
           fi
 
@@ -184,9 +175,7 @@ jobs:
         run: |
           if [ -d "dist" ]; then
             zip -r dist.zip dist
-            echo "dist.zip created"
           else
-            echo "No dist directory, creating empty placeholder"
             mkdir -p .release_placeholder
             zip -r dist.zip .release_placeholder
           fi
@@ -227,18 +216,20 @@ jobs:
           pnpm --version
 
       - name: Cache pnpm store
-        run: echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
-
-      - name: Restore pnpm store cache
         uses: actions/cache@v5
         with:
-          path: ${{ env.PNPM_STORE_PATH }}
+          path: $(pnpm store path)
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Build for provenance
         run: pnpm run build
@@ -248,7 +239,6 @@ jobs:
         run: |
           set -euo pipefail
           files=$(git ls-files)
-          # Create base64 of concatenated sha256sums
           sha256sum $files | awk '{print $1 "  " $2}' | sha256sum | awk '{print $1}' | xxd -r -p | base64 -w0 > /tmp/subject.b64 || true
           DIGEST=$(cat /tmp/subject.b64 || echo "")
           echo "digests=$DIGEST" >> "$GITHUB_OUTPUT"
