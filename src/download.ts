@@ -1,6 +1,6 @@
 /** @internal @packageDocumentation */
 
-import { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
 import m3u8stream from 'm3u8stream'
 import { handleRequestErrs, appendURL } from './util'
 import getInfo, { type Transcoding } from './info'
@@ -40,7 +40,7 @@ export const fromURLBase: fromURLFunctionBase = async (url: string, clientID: st
   getMediaURLFunction: (url: string, clientID: string, axiosInstance: AxiosInstance) => Promise<string>,
   getProgressiveStreamFunction: (mediaUrl: string, axiosInstance: AxiosInstance) => Promise<any>,
   getHLSStreamFunction: (mediaUrl: string) => m3u8stream.Stream,
-  axiosInstance: AxiosInstance):Promise<any | m3u8stream.Stream> => {
+  axiosInstance: AxiosInstance): Promise<any | m3u8stream.Stream> => {
   try {
     const mediaUrl = await getMediaURLFunction(url, clientID, axiosInstance)
 
@@ -92,7 +92,7 @@ const validateMedia = (media: Transcoding): boolean => {
 /** @internal */
 export const download = async (url: string, clientID: string, axiosInstance: AxiosInstance, useDownloadLink = true) => {
   const info = await getInfo(url, clientID, axiosInstance)
-  
+
   if (info.downloadable && useDownloadLink) {
     try {
       return await fromDownloadLink(info.id, clientID, axiosInstance)
@@ -102,10 +102,10 @@ export const download = async (url: string, clientID: string, axiosInstance: Axi
   }
 
   // Ulepszone wybieranie najlepszego transcoding
-  const availableTranscodings = info.media.transcodings.filter(t => 
-    validateMedia(t) && 
-    t.url && 
-    t.format && 
+  const availableTranscodings = info.media.transcodings.filter(t =>
+    validateMedia(t) &&
+    t.url &&
+    t.format &&
     (t.format.protocol === 'hls' || t.format.protocol === 'progressive')
   )
 
@@ -114,7 +114,7 @@ export const download = async (url: string, clientID: string, axiosInstance: Axi
   }
 
   // Preferuj progressive nad HLS (lepiej działa z Discord)
-  const preferredTranscoding = availableTranscodings.find(t => 
+  const preferredTranscoding = availableTranscodings.find(t =>
     t.format.protocol === 'progressive'
   ) || availableTranscodings[0]
 

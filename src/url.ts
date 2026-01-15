@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 /**
  * Regex dopasowujący standardowe i mobilne adresy URL SoundCloud.
@@ -57,12 +57,12 @@ export const isPlaylistURL = (url: string): boolean => {
   if (!isURL(url, false)) {
     return false;
   }
-  
+
   // Szybkie sprawdzenie string przed parsowaniem URL
   if (!url.includes('/sets/')) {
     return false;
   }
-  
+
   try {
     const parsedUrl = new URL(url);
     // Dodatkowe, bardziej rygorystyczne sprawdzenie ścieżki
@@ -131,7 +131,7 @@ export const convertFirebaseURL = async (url: string, axiosInstance: AxiosInstan
 
   // Pobieramy zawartość HTML ze skróconego linku, ponieważ często zawiera on docelowy URL w tagach meta lub skryptach.
   const { data: htmlContent } = await axiosInstance.get<string>(urlObject.toString());
-  
+
   // Reset lastIndex dla bezpieczeństwa (regex z flagą 'g' zachowuje stan)
   GENERIC_URL_SCRAPE_REGEX.lastIndex = 0;
   const allUrlsInHtml = htmlContent.match(GENERIC_URL_SCRAPE_REGEX);

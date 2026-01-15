@@ -1,6 +1,6 @@
 /** @internal @packageDocumentation */
 import { URL } from 'url'
-import { AxiosError, isAxiosError } from 'axios'
+import { isAxiosError, type AxiosError } from 'axios'
 /* eslint-disable camelcase */
 export interface PaginatedQuery<T> {
   collection: T[],
@@ -18,7 +18,7 @@ export const handleRequestErrs = (err: unknown): Error => {
     return new Error('Unknown error occurred', { cause: err });
   }
   const axiosErr = err as AxiosError;
-  
+
   // Brak odpowiedzi - problemy sieciowe
   if (!axiosErr.response) {
     // Obsługa obu kodów timeout: ECONNABORTED i ETIMEDOUT
@@ -26,10 +26,10 @@ export const handleRequestErrs = (err: unknown): Error => {
     const message = code === 'ECONNABORTED' || code === 'ETIMEDOUT'
       ? 'Request timeout. Please check your connection.'
       : code === 'ERR_NETWORK'
-      ? 'Network error. Please check your internet connection.'
-      : code === 'ERR_CANCELED'
-      ? 'Request was canceled.'
-      : 'Request failed. Please try again.';
+        ? 'Network error. Please check your internet connection.'
+        : code === 'ERR_CANCELED'
+          ? 'Request was canceled.'
+          : 'Request failed. Please try again.';
     return new Error(message, { cause: axiosErr });
   }
   const status = axiosErr.response.status;
@@ -64,7 +64,7 @@ export const handleRequestErrs = (err: unknown): Error => {
 export const appendURL = (url: string, ...params: string[]): string => {
   try {
     const u = new URL(url);
-    
+
     // Walidacja: params musi być parzystej długości
     if (params.length % 2 !== 0) {
       throw new Error(
@@ -74,12 +74,12 @@ export const appendURL = (url: string, ...params: string[]): string => {
     for (let idx = 0; idx < params.length; idx += 2) {
       const key = params[idx];
       const value = params[idx + 1];
-      
+
       if (key && value !== undefined && value !== null) {
         u.searchParams.append(key, value);
       }
     }
-    
+
     return u.href;
   } catch (err) {
     if (err instanceof TypeError) {
@@ -91,11 +91,11 @@ export const appendURL = (url: string, ...params: string[]): string => {
 export const extractIDFromPersonalizedTrackURL = (url: string): string => {
   if (!url || typeof url !== 'string') return '';
   if (!url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) return '';
-  
+
   const colonIndex = url.lastIndexOf(':');
   if (colonIndex === -1) return '';
-  
+
   return url.slice(colonIndex + 1);
 }
-export const kindMismatchError = (expected: string, received: string): Error => 
+export const kindMismatchError = (expected: string, received: string): Error =>
   new Error(`Expected resource of kind: (${expected}), received: (${received})`);

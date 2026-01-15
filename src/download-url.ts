@@ -1,5 +1,5 @@
 /** @internal @packageDocumentation */
-import { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
 import m3u8stream from 'm3u8stream'
 import { handleRequestErrs, appendURL } from './util'
 
@@ -19,8 +19,8 @@ const sanitizeURL = (url: string): string => {
 }
 
 const fromURL = async (
-  url: string, 
-  clientID: string, 
+  url: string,
+  clientID: string,
   axiosInstance: AxiosInstance,
   options?: {
     apiTimeout?: number;
@@ -49,7 +49,7 @@ const fromURL = async (
   }
   try {
     const link = appendURL(url, 'client_id', clientID);
-    
+
     const res = await axiosInstance.get(link, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
@@ -87,18 +87,18 @@ const fromURL = async (
             responseType: 'stream',
             timeout: streamTimeout
           });
-          
+
           if (!streamRes.data) {
             throw new Error('Failed to retrieve audio stream');
           }
-          
+
           return streamRes.data;
         } catch (streamErr) {
           lastError = streamErr;
-          
+
           // Jeśli to nie ostatnia próba, czekaj przed ponowieniem
           if (attempt < MAX_RETRIES - 1) {
-            await new Promise(resolve => 
+            await new Promise(resolve =>
               setTimeout(resolve, 1000 * (attempt + 1))
             );
             continue;
@@ -107,7 +107,7 @@ const fromURL = async (
       }
 
       throw new Error(
-        `Failed to download progressive stream after ${MAX_RETRIES} attempts`, 
+        `Failed to download progressive stream after ${MAX_RETRIES} attempts`,
         { cause: lastError }
       );
     }

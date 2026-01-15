@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
 import { handleRequestErrs, appendURL, extractIDFromPersonalizedTrackURL } from './util'
 import STREAMING_PROTOCOLS from './protocols'
 import FORMATS from './formats'
@@ -149,18 +149,18 @@ const getSetInfoBase = async (url: string, clientID: string, axiosRef: AxiosInst
   const playlistID = setInfo.id
   const playlistSecretToken = setInfo.secret_token
   const incompleteTracks = setInfo.tracks.filter(track => !track.title)
-  
+
   if (incompleteTracks.length === 0) {
     return setInfo
   }
-  
+
   const completeTracks = setInfo.tracks.filter(track => track.title)
   const incompleteIds = incompleteTracks.map(t => t.id)
-  
+
   if (incompleteIds.length > 50) {
     const batchSize = 50
     const batches: number[][] = []
-    
+
     for (let i = 0; i < incompleteIds.length; i += batchSize) {
       batches.push(incompleteIds.slice(i, i + batchSize))
     }
@@ -172,7 +172,7 @@ const getSetInfoBase = async (url: string, clientID: string, axiosRef: AxiosInst
     const fetchedTracks = await getTrackInfoByID(clientID, axiosRef, incompleteIds, playlistID, playlistSecretToken)
     setInfo.tracks = completeTracks.concat(fetchedTracks)
   }
-  
+
   setInfo.tracks = sortTracks(setInfo.tracks, originalOrder)
   return setInfo
 }
@@ -180,11 +180,11 @@ const getSetInfoBase = async (url: string, clientID: string, axiosRef: AxiosInst
 /** @internal */
 const sortTracks = (tracks: TrackInfo[], ids: number[]): TrackInfo[] => {
   const trackMap = new Map<number, TrackInfo>()
-  
+
   for (const track of tracks) {
     trackMap.set(track.id, track)
   }
-  
+
   const sorted: TrackInfo[] = []
   for (const id of ids) {
     const track = trackMap.get(id)
@@ -192,18 +192,18 @@ const sortTracks = (tracks: TrackInfo[], ids: number[]): TrackInfo[] => {
       sorted.push(track)
     }
   }
-  
+
   return sorted
 }
 
 /** @internal */
 const getInfo = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<TrackInfo> => {
   let data: TrackInfo
-  
+
   if (url.includes('https://soundcloud.com/discover/sets/personalized-tracks::')) {
     const idString = extractIDFromPersonalizedTrackURL(url)
     if (!idString) throw new Error('Could not parse track ID from given URL: ' + url)
-    
+
     const id = parseInt(idString, 10)
     if (isNaN(id)) {
       throw new Error('Could not parse track ID from given URL: ' + url)
@@ -216,7 +216,7 @@ const getInfo = async (url: string, clientID: string, axiosInstance: AxiosInstan
   } else {
     data = await getInfoBase<TrackInfo>(url, clientID, axiosInstance)
   }
-  
+
   if (!data.media) throw new Error('The given URL does not link to a Soundcloud track')
   return data
 }

@@ -3,7 +3,7 @@ import m3u8stream from 'm3u8stream'
 import STREAMING_PROTOCOLS from './protocols'
 import { handleRequestErrs, appendURL } from './util'
 import { Transcoding } from './info'
-import { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
 
 const validatemedia = (media: Transcoding) => {
   if (!media || !media.url || !media.format) return false
@@ -15,7 +15,7 @@ const validatemedia = (media: Transcoding) => {
 
 const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: AxiosInstance): Promise<any | m3u8stream.Stream> => {
   if (!validatemedia(media)) throw new Error('Invalid media object provided')
-  
+
   try {
     const link = appendURL(media.url, 'client_id', clientID)
     const res = await axiosInstance.get(link, {
@@ -28,7 +28,7 @@ const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: Ax
       withCredentials: true,
       timeout: 10000 // 10 sekund timeout
     })
-    
+
     if (!res.data || !res.data.url) {
       throw new Error(`Invalid response from Soundcloud. No stream URL received: ${link}`)
     }
@@ -50,7 +50,7 @@ const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: Ax
       })
       return r.data
     }
-    
+
     // HLS stream z dodatkowymi opcjami
     return m3u8stream(res.data.url, {
       requestOptions: {

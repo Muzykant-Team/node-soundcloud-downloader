@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
 import { download } from './download'
 import { getSetInfo } from './info'
 

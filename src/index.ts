@@ -10,7 +10,7 @@ import STREAMING_PROTOCOLS, { _PROTOCOLS } from './protocols'
 import FORMATS, { _FORMATS } from './formats'
 import { search, related, type SoundcloudResource, type SearchOptions } from './search'
 import { downloadPlaylist } from './download-playlist'
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, { type AxiosInstance, type AxiosError } from 'axios'
 
 import * as path from 'path'
 import * as fs from 'fs'

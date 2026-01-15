@@ -1,5 +1,5 @@
-import { AxiosInstance } from 'axios'
-import { User } from './info'
+import type { AxiosInstance } from 'axios'
+import type { User } from './info'
 import { appendURL, resolveURL } from './util'
 
 /** @internal */
