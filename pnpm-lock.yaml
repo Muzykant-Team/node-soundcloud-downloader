@@ -25,7 +25,7 @@ importers:
         version: 1.0.13
       tsdown:
         specifier: 0.15.0
-        version: 0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.17)(typescript@5.9.3)(unplugin-unused@0.5.6)
+        version: 0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.17)(typescript@5.9.3)(unplugin-unused@0.5.7)
     devDependencies:
       '@arethetypeswrong/core':
         specifier: ^0.18.2
@@ -91,13 +91,13 @@ importers:
         specifier: ^30.1.3
         version: 30.2.0(@types/node@25.0.8)
       music-metadata:
-        specifier: ^11.11.0
+        specifier: ^11.8.3
         version: 11.11.0
       pkg-types:
         specifier: ^2.3.0
         version: 2.3.0
       publint:
-        specifier: ^0.3.17
+        specifier: ^0.3.13
         version: 0.3.17
       typedoc:
         specifier: ^0.28.16
@@ -109,10 +109,10 @@ importers:
         specifier: ^0.8.0
         version: 0.8.3
       unplugin-unused:
-        specifier: ^0.5.3
-        version: 0.5.6
+        specifier: ^0.5.7
+        version: 0.5.7
       vitest:
-        specifier: ^4.0.18
+        specifier: ^4.0.0
         version: 4.0.18(@types/node@25.0.8)(jiti@2.6.1)(terser@5.44.1)(yaml@2.8.2)
       webpack:
         specifier: ^5.101.3
@@ -3426,11 +3426,11 @@ packages:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
+  js-tokens@10.0.0:
+    resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
-
-  js-tokens@9.0.1:
-    resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
   js-yaml@3.14.2:
     resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
@@ -4480,13 +4480,13 @@ packages:
     resolution: {integrity: sha512-kUIuUALHltZo0OFzRKbLh1fIRcf60t9FEA4DtUA21GHJc7Pdd9//u3DSoMFb92GkRGJ3Ql/8/Hif6aANiBuwRg==}
     engines: {node: '>=22.18.0'}
 
-  unplugin-unused@0.5.6:
-    resolution: {integrity: sha512-nuMhConeGhmYRFVvO3ZEJtAo6GrM09UqTJrOjKnTSkyr9zRjjkqN1M+mPZhYMN19+WHBR+JuNmq/gLo/ZajfdQ==}
+  unplugin-unused@0.5.7:
+    resolution: {integrity: sha512-quvqrHs6mPhk1hjbGwMoypXfagveue+/22dtgDrEzc2K9485ZAsnVfq7iYIgv7FwooiRa6+HDaLWgK2IavN+2g==}
     engines: {node: '>=20.19.0'}
 
-  unplugin@2.3.11:
-    resolution: {integrity: sha512-5uKD0nqiYVzlmCRs01Fhs2BdkEgBS3SAVP6ndrBsuK42iC2+JHyxM05Rm9G8+5mkmRtzMZGY8Ct5+mliZxU/Ww==}
-    engines: {node: '>=18.12.0'}
+  unplugin@3.0.0:
+    resolution: {integrity: sha512-0Mqk3AT2TZCXWKdcoaufeXNukv2mTrEZExeXlHIOZXdqYoHHr4n51pymnwV8x2BOVxwXbK2HLlI7usrqMpycdg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   unrs-resolver@1.11.1:
     resolution: {integrity: sha512-bSjt9pjaEBnNiGgc9rUiHGKv5l4/TGzDmYw3RhnkJGtLhbnnA/5qJj7x3dNDCRx/PJxu774LlH8lCOlB4hEfKg==}
@@ -8659,9 +8659,9 @@ snapshots:
 
   jiti@2.6.1: {}
 
-  js-tokens@4.0.0: {}
+  js-tokens@10.0.0: {}
 
-  js-tokens@9.0.1: {}
+  js-tokens@4.0.0: {}
 
   js-yaml@3.14.2:
     dependencies:
@@ -9601,7 +9601,7 @@ snapshots:
       minimist: 1.2.8
       strip-bom: 3.0.0
 
-  tsdown@0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.17)(typescript@5.9.3)(unplugin-unused@0.5.6):
+  tsdown@0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.17)(typescript@5.9.3)(unplugin-unused@0.5.7):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
@@ -9621,7 +9621,7 @@ snapshots:
       '@arethetypeswrong/core': 0.18.2
       publint: 0.3.17
       typescript: 5.9.3
-      unplugin-unused: 0.5.6
+      unplugin-unused: 0.5.7
     transitivePeerDependencies:
       - '@ts-macro/tsc'
       - '@typescript/native-preview'
@@ -9744,17 +9744,16 @@ snapshots:
       quansync: 1.0.0
       unconfig: 7.4.2
 
-  unplugin-unused@0.5.6:
+  unplugin-unused@0.5.7:
     dependencies:
       empathic: 2.0.0
       escape-string-regexp: 5.0.0
-      js-tokens: 9.0.1
-      unplugin: 2.3.11
+      js-tokens: 10.0.0
+      unplugin: 3.0.0
 
-  unplugin@2.3.11:
+  unplugin@3.0.0:
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      acorn: 8.15.0
       picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
 
