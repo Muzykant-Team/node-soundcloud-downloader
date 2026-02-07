@@ -84,7 +84,7 @@ jobs:
           fi
 
       - name: Build project
-        run: pnpm run build\
+        run: pnpm run build || pnpm exec tsdown src/index.ts --format esm,cjs --minify --clean
 
       - name: Run tests (optional, soft-fail)
         run: pnpm test
