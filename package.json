@@ -76,7 +76,7 @@
     "music-metadata": "^11.8.3",
     "pkg-types": "^2.3.0",
     "publint": "^0.3.13",
-    "typedoc": "^0.28.16",
+    "typedoc": "^0.28.17",
     "typescript": "^5.9.2",
     "unloader": "^0.8.0",
     "unplugin-unused": "^0.5.3",
