@@ -1,0 +1,1 @@
+Object.defineProperties(exports,{__esModule:{value:!0},[Symbol.toStringTag]:{value:`Module`}});const e=require(`./info-D6eY7rX5.cjs`);exports.default=e.t,exports.getInfoBase=e.n,exports.getSetInfo=e.r,exports.getTrackInfoByID=e.i;

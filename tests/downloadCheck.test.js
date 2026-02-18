@@ -10,21 +10,25 @@
  */
 require('dotenv').config()
 const scdl = require('../').default
-const fileType = require('file-type')
-const mm = require('music-metadata')
 
 let downloadedFile
 let downloadedFile2
 
-describe('Real Download Tests', () => {
+
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
+describeIntegration('Real Download Tests', () => {
+  let fileType
+  let mm
   beforeAll(async () => {
+    ;({ fileType } = await import('file-type'))
+    mm = await import('music-metadata')
     try {
       downloadedFile = await scdl.download(
         'https://soundcloud.com/monsune_inc/outta-my-mind')
       downloadedFile2 = await scdl.download('https://soundcloud.com/dakota-perez-7/omfg-mashup-hello-i-love-you-yeah-ice-cream-and-wonderful')
     } catch (err) {
       console.error(err)
-      process.exit(1)
+      throw err
     }
     // console.log(downloadedFile)
   })

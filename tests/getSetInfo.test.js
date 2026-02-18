@@ -4,7 +4,9 @@
 
 import scdl from '../'
 
-describe('getSetInfo()', () => {
+
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
+describeIntegration('getSetInfo()', () => {
   describe('returns valid SetInfo', () => {
     let info
     let infoLarge
@@ -14,7 +16,7 @@ describe('getSetInfo()', () => {
         infoLarge = await scdl.getSetInfo('https://soundcloud.com/ilyanaazman/sets/best-of-mrrevillz')
       } catch (err) {
         console.log(err)
-        process.exit(1)
+        throw err
       }
     })
 

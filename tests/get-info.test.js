@@ -140,7 +140,7 @@ const sampleData = {
 }
 
 describe('getInfo()', () => {
-  it('returns track info when given a valid url', async done => {
+  it('returns track info when given a valid url', async () => {
     const mock = new MockAdapter(axios)
     const url = 'https://soundcloud.com/childish-gambino/me-and-your-mama'
     const instance = axios.create()
@@ -149,9 +149,9 @@ describe('getInfo()', () => {
     try {
       const info = await getInfoBase(url, process.env.CLIENT_ID, instance)
       expect(info).toEqual(sampleData)
-      done()
+      
     } catch (err) {
-      done(err)
+      throw err
     }
   })
 })
