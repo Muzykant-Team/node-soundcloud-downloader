@@ -1,0 +1,2 @@
+require(`./protocols.cjs`),require(`./formats.cjs`);const e=(e,t)=>e.filter(({format:e,snipped:n})=>!(n||t.protocol!==void 0&&e.protocol!==t.protocol||t.format!==void 0&&e.mime_type!==t.format));module.exports=e;
+//# sourceMappingURL=filter-media.cjs.map

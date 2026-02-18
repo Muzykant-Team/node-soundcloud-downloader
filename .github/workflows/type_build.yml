@@ -86,9 +86,11 @@ jobs:
       - name: Build project
         run: pnpm run build || pnpm exec tsdown src/index.ts --format esm,cjs --minify --clean
 
-      - name: Run tests (optional, soft-fail)
+      - name: Generate SoundCloud CLIENT_ID for tests
+        run: echo "CLIENT_ID=$(pnpm run -s sc:token)" >> $GITHUB_ENV
+
+      - name: Run tests
         run: pnpm test
-        continue-on-error: true
 
       - name: Auto-commit dist (master only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'

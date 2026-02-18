@@ -1,0 +1,2 @@
+import"./protocols.js";import"./formats.js";const e=(e,t)=>e.filter(({format:e,snipped:n})=>!(n||t.protocol!==void 0&&e.protocol!==t.protocol||t.format!==void 0&&e.mime_type!==t.format));export{e as default};
+//# sourceMappingURL=filter-media.js.map

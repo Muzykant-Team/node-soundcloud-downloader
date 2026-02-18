@@ -4,19 +4,21 @@
 
 import scdl from '..'
 
-describe('getUser()', () => {
+
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
+describeIntegration('getUser()', () => {
   const profileURL = 'https://soundcloud.com/uiceheidd'
 
-  it('returns a valid user response', async done => {
+  it('returns a valid user response', async () => {
     try {
       const user = await scdl.getUser(profileURL)
 
       expect(user).toBeDefined()
       expect(user.kind).toEqual('user')
-      done()
+      
     } catch (err) {
       console.error(err)
-      done(err)
+      throw err
     }
   })
 })

@@ -2,12 +2,15 @@
  * @jest-environment node
  */
 const scdl = require('..').default
-const fileType = require('file-type')
 
 let streams
 let trackNames
-describe('downloadPlaylist()', () => {
+
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
+describeIntegration('downloadPlaylist()', () => {
+  let fileType
   beforeAll(async () => {
+    ;({ fileType } = await import('file-type'))
     try {
       const [s, t] = await scdl.downloadPlaylist('https://soundcloud.com/zack-radisic-103764335/sets/test')
       streams = s
@@ -21,17 +24,17 @@ describe('downloadPlaylist()', () => {
     streams.forEach(stream => expect(stream).toBeDefined())
   })
 
-  it('stream mime type is mpeg', async done => {
+  it('stream mime type is mpeg', async () => {
     try {
       for (const stream of streams) {
         const type = await fileType.fromStream(stream)
         expect(type).toBeDefined()
         expect(type.mime).toBe('audio/mpeg')
       }
-      done()
+      
     } catch (err) {
       console.log(err)
-      done(err)
+      throw err
     }
   })
 

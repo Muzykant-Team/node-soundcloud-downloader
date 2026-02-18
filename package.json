@@ -15,9 +15,11 @@
   },
   "scripts": {
     "docs": "typedoc && mkdir -p ./docs && touch ./docs/.nojekyll",
-    "build": "tsdown src/index.ts --format esm,cjs --dts --minify --clean",
+    "build": "tsdown",
     "publish-script": "./publish.sh",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "sc:token": "node ./scripts/generate-client-id.cjs",
+    "test:integration": "RUN_INTEGRATION_TESTS=true jest --runInBand"
   },
   "keywords": [
     "soundcloud",
@@ -62,8 +64,8 @@
     "@rspack/core": "^1.5.5",
     "@types/koa__cors": "^5.0.0",
     "@types/webpack": "^5.28.5",
-    "@typescript-eslint/eslint-plugin": "^8.43.0",
-    "@typescript-eslint/parser": "^8.43.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
     "axios-mock-adapter": "^2.1.0",
     "babel-watch": "^7.8.1",
     "eslint": "^9.35.0",

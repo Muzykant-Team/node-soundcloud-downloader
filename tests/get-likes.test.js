@@ -4,7 +4,9 @@
 
 import scdl from '..'
 
-describe('getLikes()', () => {
+
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
+describeIntegration('getLikes()', () => {
   const profileUrl = 'https://soundcloud.com/uiceheidd'
   const limit = 41
 
@@ -19,7 +21,7 @@ describe('getLikes()', () => {
       })
     } catch (err) {
       console.error(err)
-      process.exit(1)
+      throw err
     }
   })
 
@@ -43,17 +45,17 @@ describe('getLikes()', () => {
     expect(response.collection.length).toBeLessThanOrEqual(limit)
   })
 
-  it('should fetch as many liked tracks as possible when limit === -1', async (done) => {
+  it('should fetch as many liked tracks as possible when limit === -1', async () => {
     try {
       const likes = await scdl.getLikes({
         profileUrl,
         limit: -1
       })
       expect(likes.collection.length).toBeGreaterThanOrEqual(count)
-      done()
+      
     } catch (err) {
       console.error(err)
-      done(err)
+      throw err
     }
   })
 })

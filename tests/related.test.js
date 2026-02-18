@@ -4,7 +4,9 @@
 
 import scdl, { search } from '../'
 
-describe('related()', () => {
+
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
+describeIntegration('related()', () => {
   const limit = 10
   let searchResponse
 
@@ -13,7 +15,7 @@ describe('related()', () => {
       searchResponse = await scdl.related(170286204, limit, 0)
     } catch (err) {
       console.log(err)
-      process.exit(1)
+      throw err
     }
   })
 
