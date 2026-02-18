@@ -87,10 +87,19 @@ jobs:
         run: pnpm run build || pnpm exec tsdown src/index.ts --format esm,cjs --minify --clean
 
       - name: Generate SoundCloud CLIENT_ID for tests
-        run: echo "CLIENT_ID=$(pnpm run -s sc:token)" >> $GITHUB_ENV
+        env:
+          SCDL_CLIENT_ID_TIMEOUT_MS: '20000'
+        run: |
+          CLIENT_ID="$(timeout 90s pnpm run -s sc:token)"
+          if [ -z "$CLIENT_ID" ]; then
+            echo "Generated CLIENT_ID is empty"
+            exit 1
+          fi
+          echo "::add-mask::$CLIENT_ID"
+          echo "CLIENT_ID=$CLIENT_ID" >> "$GITHUB_ENV"
 
       - name: Run tests
-        run: pnpm test
+        run: RUN_INTEGRATION_TESTS=true pnpm test
 
       - name: Auto-commit dist (master only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'

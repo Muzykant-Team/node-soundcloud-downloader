@@ -15,11 +15,13 @@
   },
   "scripts": {
     "docs": "typedoc && mkdir -p ./docs && touch ./docs/.nojekyll",
-    "build": "tsdown",
+    "build": "tsdown && pnpm run build:types",
     "publish-script": "./publish.sh",
     "test": "jest --runInBand",
     "sc:token": "node ./scripts/generate-client-id.cjs",
-    "test:integration": "RUN_INTEGRATION_TESTS=true jest --runInBand"
+    "test:integration": "RUN_INTEGRATION_TESTS=true jest --runInBand",
+    "pretest": "pnpm build",
+    "build:types": "node ./scripts/build-types.cjs"
   },
   "keywords": [
     "soundcloud",
