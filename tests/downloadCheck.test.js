@@ -29,6 +29,18 @@ const hasMpegHeader = async (stream) => {
   return isID3 || isMpegSync
 }
 
+
+const closeStream = async (stream) => {
+  if (!stream) return
+  stream.removeAllListeners('error')
+  if (stream.destroyed) return
+
+  await new Promise(resolve => {
+    stream.once('close', resolve)
+    stream.destroy()
+  })
+}
+
 const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
 describeIntegration('Real Download Tests', () => {
   beforeAll(async () => {
@@ -54,10 +66,22 @@ describeIntegration('Real Download Tests', () => {
     await expect(hasMpegHeader(downloadedFile2)).resolves.toBe(true)
   })
 
-  it('No Errors in Stream', () => {
+  it('No Errors in Stream', async () => {
     if (setupError) return
-    downloadedFile.on('error', (err) => {
-      expect(err).toBeFalsy()
-    })
+
+    await Promise.all([
+      expect(new Promise((resolve, reject) => {
+        downloadedFile.once('error', reject)
+        downloadedFile.once('end', resolve)
+      })).resolves.toBeUndefined(),
+      expect(new Promise((resolve, reject) => {
+        downloadedFile2.once('error', reject)
+        downloadedFile2.once('end', resolve)
+      })).resolves.toBeUndefined()
+    ])
+  })
+
+  afterAll(async () => {
+    await Promise.all([closeStream(downloadedFile), closeStream(downloadedFile2)])
   })
 })

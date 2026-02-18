@@ -19,6 +19,18 @@ const hasMpegHeader = async (stream) => {
   return isID3 || isMpegSync
 }
 
+
+const closeStream = async (stream) => {
+  if (!stream) return
+  stream.removeAllListeners('error')
+  if (stream.destroyed) return
+
+  await new Promise(resolve => {
+    stream.once('close', resolve)
+    stream.destroy()
+  })
+}
+
 const describeIntegration = process.env.RUN_INTEGRATION_TESTS === 'true' ? describe : describe.skip
 describeIntegration('downloadPlaylist()', () => {
   beforeAll(async () => {
@@ -58,10 +70,18 @@ describeIntegration('downloadPlaylist()', () => {
     })
   })
 
-  it('No Errors in Stream', () => {
+  it('No Errors in Stream', async () => {
     if (setupError) return
-    streams.forEach(stream => stream.on('error', (err) => {
-      expect(err).toBeFalsy()
-    }))
+
+    for (const stream of streams) {
+      await expect(new Promise((resolve, reject) => {
+        stream.once('error', reject)
+        stream.once('end', resolve)
+      })).resolves.toBeUndefined()
+    }
+  })
+
+  afterAll(async () => {
+    await Promise.all((streams || []).map(stream => closeStream(stream)))
   })
 })
