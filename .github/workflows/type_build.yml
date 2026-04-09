@@ -146,7 +146,7 @@ jobs:
       - name: Deploy Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # ============================================================
   # PRE-RELEASE
