@@ -49,7 +49,7 @@ importers:
         specifier: ^0.12.10
         version: 0.12.10
       '@rspack/core':
-        specifier: ^1.5.5
+        specifier: ^1.7.11
         version: 1.7.11(@swc/helpers@0.5.21)
       '@types/koa__cors':
         specifier: ^5.0.0
