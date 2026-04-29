@@ -81,7 +81,7 @@
     "pkg-types": "^2.3.0",
     "publint": "^0.3.13",
     "typedoc": "^0.28.16",
-    "typescript": "^5.9.2",
+    "typescript": "^6.0.0",
     "unloader": "^0.8.0",
     "unplugin-unused": "^0.5.3",
     "vitest": "^4.0.0",
