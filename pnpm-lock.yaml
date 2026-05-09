@@ -25,7 +25,7 @@ importers:
         version: 1.0.13
       tsdown:
         specifier: 0.15.0
-        version: 0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.18)(typescript@5.9.3)(unplugin-unused@0.5.7)
+        version: 0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.20)(typescript@5.9.3)(unplugin-unused@0.5.7)
     devDependencies:
       '@arethetypeswrong/core':
         specifier: ^0.18.2
@@ -40,7 +40,7 @@ importers:
         specifier: ^7.28.3
         version: 7.29.0(@babel/core@7.29.0)
       '@babel/preset-env':
-        specifier: ^7.29.5
+        specifier: ^7.28.3
         version: 7.29.5(@babel/core@7.29.0)
       '@farmfe/core':
         specifier: ^1.7.11
@@ -76,7 +76,7 @@ importers:
         specifier: ^2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-jest:
-        specifier: ^29.15.2
+        specifier: ^29.0.1
         version: 29.15.2(@typescript-eslint/eslint-plugin@8.58.1(@typescript-eslint/parser@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(jest@30.3.0(@types/node@25.5.2))(typescript@5.9.3)
       eslint-plugin-n:
         specifier: ^17.0.0
@@ -97,10 +97,10 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       publint:
-        specifier: ^0.3.13
-        version: 0.3.18
+        specifier: ^0.3.20
+        version: 0.3.20
       typedoc:
-        specifier: ^0.28.19
+        specifier: ^0.28.16
         version: 0.28.19(typescript@5.9.3)
       typescript:
         specifier: ^5.9.2
@@ -3950,8 +3950,8 @@ packages:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
     engines: {node: '>=10'}
 
-  publint@0.3.18:
-    resolution: {integrity: sha512-JRJFeBTrfx4qLwEuGFPk+haJOJN97KnPuK01yj+4k/Wj5BgoOK5uNsivporiqBjk2JDaslg7qJOhGRnpltGeog==}
+  publint@0.3.20:
+    resolution: {integrity: sha512-UWqFYP7VBVCe9l/leEEGJrDs6Am4K4KapLmLi5qbt+9fA+Ny38ghdW+bw1nYfVqCK8/3kgsxjjhFjTYqYYRpyw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9318,7 +9318,7 @@ snapshots:
 
   proxy-from-env@2.1.0: {}
 
-  publint@0.3.18:
+  publint@0.3.20:
     dependencies:
       '@publint/pack': 0.1.4
       package-manager-detector: 1.6.0
@@ -9804,7 +9804,7 @@ snapshots:
       minimist: 1.2.8
       strip-bom: 3.0.0
 
-  tsdown@0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.18)(typescript@5.9.3)(unplugin-unused@0.5.7):
+  tsdown@0.15.0(@arethetypeswrong/core@0.18.2)(publint@0.3.20)(typescript@5.9.3)(unplugin-unused@0.5.7):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
@@ -9822,7 +9822,7 @@ snapshots:
       unconfig: 7.5.0
     optionalDependencies:
       '@arethetypeswrong/core': 0.18.2
-      publint: 0.3.18
+      publint: 0.3.20
       typescript: 5.9.3
       unplugin-unused: 0.5.7
     transitivePeerDependencies:
