@@ -112,7 +112,7 @@ importers:
         specifier: ^0.5.3
         version: 0.5.7(@farmfe/core@1.7.11(@types/node@26.1.0))(@rspack/core@1.7.12(@swc/helpers@0.5.23))(rolldown@1.1.4)(unloader@0.9.0)(vite@8.1.2(@types/node@26.1.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.3)
       vitest:
-        specifier: ^4.0.0
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@26.1.0)(vite@8.1.2(@types/node@26.1.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
       webpack:
         specifier: ^5.108.3
