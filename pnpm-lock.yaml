@@ -115,7 +115,7 @@ importers:
         specifier: ^4.0.0
         version: 4.1.9(@types/node@26.1.0)(vite@8.1.2(@types/node@26.1.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
       webpack:
-        specifier: ^5.101.3
+        specifier: ^5.108.3
         version: 5.108.3
 
 packages:
