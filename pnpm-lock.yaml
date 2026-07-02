@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.28.4
+        specifier: ^7.29.7
         version: 7.29.7
       axios:
         specifier: ^1.18.1
@@ -31,16 +31,16 @@ importers:
         specifier: ^0.18.2
         version: 0.18.4
       '@babel/cli':
-        specifier: ^7.28.3
+        specifier: ^7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@babel/core':
-        specifier: ^7.28.4
+        specifier: ^7.29.7
         version: 7.29.7
       '@babel/plugin-transform-runtime':
-        specifier: ^7.28.3
+        specifier: ^7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@babel/preset-env':
-        specifier: ^7.28.3
+        specifier: ^7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@farmfe/core':
         specifier: ^1.7.11
