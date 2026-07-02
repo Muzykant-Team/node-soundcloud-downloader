@@ -32,6 +32,7 @@ I couldn't find any packages that worked with a Discord bot I was working on so 
 - [Examples](#examples)
 - [Obtaining a Client ID](#client-id)
 - [To do](#to-do)
+- [Maintenance Policy](#maintenance-policy)
 
 ## API / [Documentation](https://zackradisic.github.io/node-soundcloud-downloader/classes/_index_.scdl.html)
 Here are the two most commonly used functions:
@@ -97,6 +98,18 @@ If I have the time and there is enough demand, I am interested in implementing t
 - Some more integrations with Discord.js like selecting best format for voice channels
 
 If you have any feature requests, suggestions or questions do not hesitate to post them in the issues section
+
+## Maintenance Policy
+
+⚠️ Muzykant Team does **not** actively rewrite or adapt this code for breaking changes in its dependencies (e.g. `axios`, `dotenv`, `m3u8stream`, `soundcloud-key-fetch`, `tsdown`).
+
+- We stay on the current major versions of our dependencies **as long as those majors keep receiving minor/fix updates** upstream. Occasional minor and fix updates will be applied.
+- We do **not** plan to migrate to new major versions of dependencies or adapt the code for their breaking changes.
+- If this package itself stops working, there are **no plans for a major rewrite or fix**. Small fixes may happen, but they are **not guaranteed**.
+- **If the library stops working, it stops working — that's it.** There is no fallback plan or emergency patch commitment.
+- ⚠️ **Unpatched CVEs may be present.** Since we don't upgrade dependencies to their new major versions, some known vulnerabilities in those dependencies may remain unpatched, as fixing them would require a major upgrade we are not planning to do. Use at your own risk and audit your dependency tree accordingly.
+
+This fork is provided **AS IS**, maintained on a best-effort, minimal basis, with no guarantee of long-term support.
 
 ## Disclaimer
 I do not support piracy and this package is not designed for circumventing the technological measures employed
