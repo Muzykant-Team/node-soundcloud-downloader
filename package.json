@@ -65,7 +65,7 @@
     "@babel/preset-env": "^7.29.7",
     "@farmfe/core": "^1.7.11",
     "@farmfe/runtime": "^0.12.10",
-    "@rspack/core": "^1.7.12",
+    "@rspack/core": "^2.0.0",
     "@types/koa__cors": "^5.0.1",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.63.0",
