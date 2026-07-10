@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsdown'
 
-export default defineConfig([
+const config = [
   {
     entry: ['./src/index.ts'],
     outDir: 'dist',
@@ -21,4 +21,11 @@ export default defineConfig([
     minify: true,
     clean: false
   }
-])
+]
+
+// Some versions of `tsdown` export a `defineConfig` helper. If the API changes
+// (breaking changes in newer tsdown releases), fall back to exporting the raw
+// config array so older/newer CLIs can still consume it.
+const exported = typeof defineConfig === 'function' ? defineConfig(config as any) : config
+
+export default exported

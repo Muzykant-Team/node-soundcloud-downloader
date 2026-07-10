@@ -6,10 +6,27 @@ const path = require('node:path')
 const repoRoot = path.resolve(__dirname, '..')
 const distDir = path.join(repoRoot, 'dist')
 
-execSync('pnpm exec tsdown src/index.ts --dts --format esm --clean false --out-dir dist', {
-  cwd: repoRoot,
-  stdio: 'inherit'
-})
+function runTsdown(args) {
+  const candidates = [
+    `pnpm exec tsdown ${args}`,
+    `npx -y tsdown@latest ${args}`,
+    `${path.join(repoRoot, 'node_modules', '.bin', 'tsdown')} ${args}`
+  ]
+
+  for (const cmd of candidates) {
+    try {
+      execSync(cmd, { cwd: repoRoot, stdio: 'inherit', shell: true })
+      return
+    } catch (err) {
+      // try next candidate
+    }
+  }
+
+  console.error('Failed to execute tsdown via pnpm, npx, or local bin')
+  process.exit(1)
+}
+
+runTsdown('src/index.ts --dts --format esm --clean false --out-dir dist')
 
 const typeFile = readdirSync(distDir)
   .filter((file) => /^index-.*\.d\.ts$/.test(file))

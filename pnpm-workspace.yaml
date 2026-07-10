@@ -1,0 +1,5 @@
+allowBuilds:
+  core-js: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@arethetypeswrong/core@0.18.5'

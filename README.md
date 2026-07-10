@@ -101,7 +101,7 @@ If you have any feature requests, suggestions or questions do not hesitate to po
 
 ## Maintenance Policy
 
-⚠️ Muzykant Team does **not** actively rewrite or adapt this code for breaking changes in its dependencies (e.g. `axios`, `dotenv`, `m3u8stream`, `soundcloud-key-fetch`, `tsdown`).
+⚠️ Muzykant Team does **not** actively rewrite or adapt this code for breaking changes in its dependencies (e.g. `axios`, `dotenv`, `m3u8stream`, `soundcloud-key-fetch`, `tsdown`). Note: `tsdown` may introduce breaking changes to its CLI/config API between major releases — builds could require manual adjustments.
 
 - We stay on the current major versions of our dependencies **as long as those majors keep receiving minor/fix updates** upstream. Occasional minor and fix updates will be applied.
 - We do **not** plan to migrate to new major versions of dependencies or adapt the code for their breaking changes.
