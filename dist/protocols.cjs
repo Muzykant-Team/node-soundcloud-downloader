@@ -1,0 +1,2 @@
+Object.defineProperties(exports,{__esModule:{value:!0},[Symbol.toStringTag]:{value:`Module`}});var e=function(e){return e.HLS=`hls`,e.PROGRESSIVE=`progressive`,e}(e||{});const t={HLS:`hls`,PROGRESSIVE:`progressive`};exports._PROTOCOLS=t,exports.default=e;
+//# sourceMappingURL=protocols.cjs.map

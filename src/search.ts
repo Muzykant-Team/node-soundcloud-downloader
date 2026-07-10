@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+ 
 import type { AxiosInstance } from 'axios'
 import type { TrackInfo, User, SetInfo } from './info'
 import { appendURL, type PaginatedQuery } from './util'

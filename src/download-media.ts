@@ -2,7 +2,7 @@
 import m3u8stream from 'm3u8stream'
 import STREAMING_PROTOCOLS from './protocols'
 import { handleRequestErrs, appendURL } from './util'
-import { Transcoding } from './info'
+import type { Transcoding } from './info'
 import type { AxiosInstance } from 'axios'
 
 const validatemedia = (media: Transcoding) => {
@@ -20,7 +20,7 @@ const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: Ax
     const link = appendURL(media.url, 'client_id', clientID)
     const res = await axiosInstance.get(link, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
         Accept: '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
         'Referer': 'https://soundcloud.com/'
@@ -44,9 +44,9 @@ const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: Ax
         responseType: 'stream',
         timeout: 15000, // 15 sekund timeout dla stream
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
-          'Referer': 'https://soundcloud.com/'
-        }
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+            'Referer': 'https://soundcloud.com/'
+          }
       })
       return r.data
     }
@@ -55,7 +55,7 @@ const fromMedia = async (media: Transcoding, clientID: string, axiosInstance: Ax
     return m3u8stream(res.data.url, {
       requestOptions: {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
           'Referer': 'https://soundcloud.com/'
         }
       }

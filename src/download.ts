@@ -8,9 +8,10 @@ import getInfo, { type Transcoding } from './info'
 export const getMediaURL = async (url: string, clientID: string, axiosInstance: AxiosInstance): Promise<string> => {
   const res = await axiosInstance.get(appendURL(url, 'client_id', clientID), {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
       Accept: '*/*',
-      'Accept-Encoding': 'gzip, deflate, br'
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Referer': 'https://soundcloud.com/'
     },
     withCredentials: true
   })
@@ -21,7 +22,12 @@ export const getMediaURL = async (url: string, clientID: string, axiosInstance: 
 export const getProgressiveStream = async (mediaUrl: string, axiosInstance: AxiosInstance) => {
   const r = await axiosInstance.get(mediaUrl, {
     withCredentials: true,
-    responseType: 'stream'
+    responseType: 'stream',
+    timeout: 15000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+      'Referer': 'https://soundcloud.com/'
+    }
   })
 
   return r.data

@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+ 
 import type { AxiosInstance } from 'axios'
 import { handleRequestErrs, appendURL, extractIDFromPersonalizedTrackURL } from './util'
 import STREAMING_PROTOCOLS from './protocols'

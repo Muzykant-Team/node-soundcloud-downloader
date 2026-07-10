@@ -52,9 +52,10 @@ const fromURL = async (
 
     const res = await axiosInstance.get(link, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.52 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
         'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br'
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Referer': 'https://soundcloud.com/'
       },
       withCredentials: true,
       timeout: apiTimeout
@@ -85,7 +86,12 @@ const fromURL = async (
           const streamRes = await axiosInstance.get(streamURL, {
             withCredentials: true,
             responseType: 'stream',
-            timeout: streamTimeout
+            timeout: streamTimeout,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+              'Accept': '*/*',
+              'Referer': 'https://soundcloud.com/'
+            }
           });
 
           if (!streamRes.data) {
@@ -117,7 +123,11 @@ const fromURL = async (
       return m3u8stream(streamURL, {
         requestOptions: {
           maxRetries: MAX_RETRIES,
-          maxReconnects: MAX_RETRIES
+          maxReconnects: MAX_RETRIES,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+            'Referer': 'https://soundcloud.com/'
+          }
         }
       });
     } catch (m3u8Err) {

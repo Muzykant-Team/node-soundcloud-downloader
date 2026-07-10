@@ -1,7 +1,7 @@
 /** @internal @packageDocumentation */
 import { URL } from 'url'
 import { isAxiosError, type AxiosError } from 'axios'
-/* eslint-disable camelcase */
+ 
 export interface PaginatedQuery<T> {
   collection: T[],
   total_results?: number, // is omitted if limit parameter is supplied

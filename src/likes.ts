@@ -5,7 +5,7 @@ import { appendURL, kindMismatchError, type PaginatedQuery } from './util'
 const baseURL = 'https://api-v2.soundcloud.com/users/'
 
 export interface Like {
-  // eslint-disable-next-line camelcase
+   
   created_at: string,
   kind: string,
   track: TrackInfo
