@@ -45,15 +45,15 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Setup Node.js 25
+      - name: Setup Node.js 26
         uses: actions/setup-node@v6
         with:
-          node-version: '25.x'
+          node-version: '26.x'
 
-      - name: Enable corepack and prepare pnpm 10
+      - name: Enable corepack and prepare pnpm 11
         run: |
           corepack enable
-          corepack prepare pnpm@10.x --activate
+          corepack prepare pnpm@11.x --activate
           pnpm --version
 
       - name: Prepare pnpm lockfile if missing
@@ -204,15 +204,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js 25 for SLSA
+      - name: Setup Node.js 26 for SLSA
         uses: actions/setup-node@v6
         with:
-          node-version: '25.x'
+          node-version: '26.x'
 
-      - name: Enable corepack and prepare pnpm 10
+      - name: Enable corepack and prepare pnpm 11
         run: |
           corepack enable
-          corepack prepare pnpm@10.x --activate
+          corepack prepare pnpm@11.x --activate
           pnpm --version
 
       - name: Cache pnpm store
