@@ -1,6 +1,6 @@
 {
   "name": "muzykant-soundcloud-downloader",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "description": "Download Soundcloud audio with Node.js",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -58,36 +58,20 @@
     "tsdown": "^0.22.4"
   },
   "devDependencies": {
-    "@arethetypeswrong/core": "^0.18.5",
     "@babel/cli": "^7.29.7",
     "@babel/core": "^7.29.7",
     "@babel/plugin-transform-runtime": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
-    "@farmfe/core": "^1.7.11",
-    "@farmfe/runtime": "^0.12.10",
-    "@rspack/core": "^1.7.12",
-    "@types/koa__cors": "^5.0.1",
-    "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.63.0",
     "@typescript-eslint/parser": "^8.63.0",
     "axios-mock-adapter": "^2.1.0",
     "babel-jest": "^30.4.1",
-    "babel-watch": "^7.8.1",
     "eslint": "^9.39.4",
-    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jest": "^29.15.4",
-    "eslint-plugin-n": "^17.24.0",
-    "eslint-plugin-promise": "^7.3.0",
-    "file-type": "^21.3.4",
+    "file-type": "^22.0.1",
     "jest": "^30.4.2",
-    "music-metadata": "^11.13.0",
-    "pkg-types": "^2.3.1",
-    "publint": "^0.3.21",
     "typedoc": "^0.28.20",
     "typescript": "^5.9.3",
-    "unloader": "^0.9.0",
-    "unplugin-unused": "^0.5.7",
-    "vitest": "^4.1.10",
-    "webpack": "^5.108.4"
+    "vitest": "^4.1.10"
   }
 }

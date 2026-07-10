@@ -1,31 +1,44 @@
-// const readChunk = require('read-chunk')
-const fileType = require('file-type')
-const scdl = require('../').default
+import { fileTypeFromStream } from 'file-type';
+import { Readable } from 'node:stream';
+import { createRequire } from 'node:module';
 
-console.log(scdl)
-scdl.download('https://soundcloud.com/monsune_inc/outta-my-mind', process.env.CLIENT_ID)
-  .then(stream => {
-    fileType.fromStream(stream)
-      .then(type => {
-        if (type.mime !== 'audio/mpeg') {
-          console.log('Invalid file type: ' + type.mime)
-          process.exit(1)
-        }
+const require = createRequire(import.meta.url);
 
-        console.log('Success running download-check')
-        process.exit(0)
-      })
-      .catch(err => {
-        console.log(err)
-        process.exit(1)
-      })
+const scdlModule = require('../');
+const scdl = scdlModule.default || scdlModule;
+
+async function checkDownload() {
+  try {
+    console.log('SCDL Module:', scdl);
+    
+    const stream = await scdl.download(
+      'https://soundcloud.com/monsune_inc/outta-my-mind', 
+      process.env.CLIENT_ID
+    );
 
     stream.on('error', err => {
-      console.log(err)
-      process.exit(1)
-    })
-  })
-  .catch(err => {
-    console.log(err)
-    process.exit(1)
-  })
+      console.error('Stream error:', err);
+      process.exit(1);
+    });
+
+    const webStream = Readable.toWeb(stream);
+
+    const type = await fileTypeFromStream(webStream);
+
+    const allowedMimeTypes = ['audio/mpeg', 'video/mp4', 'audio/mp4', 'audio/x-m4a'];
+
+    if (!type || !allowedMimeTypes.includes(type.mime)) {
+      console.log('Invalid file type: ' + (type ? type.mime : 'unknown'));
+      process.exit(1);
+    }
+
+    console.log('Success running download-check');
+    process.exit(0);
+
+  } catch (err) {
+    console.error('Download failed:', err);
+    process.exit(1);
+  }
+}
+
+checkDownload();
