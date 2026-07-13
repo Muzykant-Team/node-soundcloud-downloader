@@ -71,7 +71,7 @@
     "file-type": "^22.0.1",
     "jest": "^30.4.2",
     "typedoc": "^0.28.20",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },
   "allowScripts": {
