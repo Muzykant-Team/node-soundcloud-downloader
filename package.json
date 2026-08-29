@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.29.7",
-    "axios": "^1.18.1",
+    "axios": "^1.20.0",
     "dotenv": "^17.4.2",
     "m3u8stream": "^0.8.6",
     "soundcloud-key-fetch": "^1.0.13",
@@ -62,17 +62,17 @@
     "@babel/core": "^7.29.7",
     "@babel/plugin-transform-runtime": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
-    "@typescript-eslint/eslint-plugin": "^8.65.0",
-    "@typescript-eslint/parser": "^8.65.0",
+    "@typescript-eslint/eslint-plugin": "^8.68.0",
+    "@typescript-eslint/parser": "^8.68.0",
     "axios-mock-adapter": "^2.1.0",
-    "babel-jest": "^30.4.1",
+    "babel-jest": "^30.5.0",
     "eslint": "^9.39.5",
-    "eslint-plugin-jest": "^29.16.0",
-    "file-type": "^22.0.1",
-    "jest": "^30.4.2",
+    "eslint-plugin-jest": "^29.16.5",
+    "file-type": "^22.0.2",
+    "jest": "^30.5.0",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "unrs-resolver@1.12.2": true
