@@ -72,7 +72,7 @@
     "jest": "^30.5.0",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   },
   "allowScripts": {
     "unrs-resolver@1.12.2": true
